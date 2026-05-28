@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+.venv
+examples.json
+.examples_cache
+extraction.jsonl
+output.xlsx
+.tmp.jsonl
+visualizations
+**/__pycache__/*
+grafana/provisioning/vendor

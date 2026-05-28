@@ -1,0 +1,32 @@
+{
+  "name": "qualitative-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest --run --tags-filter=!example",
+    "test:example": "vitest --run --tags-filter=example",
+    "verb-framing": "tsx src/verb_framing/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.78",
+    "@ai-sdk/openai": "^3.0.64",
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/sdk-node": "^0.218.0",
+    "ai": "^6.0.185",
+    "ai-sdk-ollama": "^3.8.4",
+    "ajv": "^8.17.1",
+    "commander": "^14.0.3",
+    "exceljs": "^3.4.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.0",
+    "@types/node": "^22.19.19",
+    "memfs": "^4.57.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.6"
+  }
+}

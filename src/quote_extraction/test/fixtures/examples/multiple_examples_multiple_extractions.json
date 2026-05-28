@@ -1,0 +1,26 @@
+[
+    {
+        "id": "001",
+        "text": "first_example_text",
+        "extractions": [
+            {
+                "extraction_class": "inner thinking,emotional reaction",
+                "extraction_text": "first_extraction_text"
+            },
+            {
+                "extraction_class": "emotional reaction,personal rule",
+                "extraction_text": "second_extraction_text"
+            }
+        ]
+    },
+    {
+        "id": "002",
+        "text": "second_example_text",
+        "extractions": [
+            {
+                "extraction_class": "inner thinking,personal rule",
+                "extraction_text": "third_extraction_text"
+            }
+        ]
+    }
+]

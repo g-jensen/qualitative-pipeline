@@ -1,0 +1,12 @@
+[
+    {
+        "id": "001",
+        "text": "the_example_text",
+        "extractions": [
+            {
+                "extraction_class": "inner thinking",
+                "extraction_text": "the_extraction_text"
+            }
+        ]
+    }
+]

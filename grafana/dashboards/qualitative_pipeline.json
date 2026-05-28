@@ -1,0 +1,648 @@
+{
+   "panels": [
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "color": {
+                  "mode": "palette-classic"
+               },
+               "custom": {
+                  "barWidthFactor": 0.20000000000000001,
+                  "drawStyle": "bars",
+                  "fillOpacity": 50,
+                  "lineWidth": 1,
+                  "pointSize": 9,
+                  "showPoints": "always",
+                  "showValues": true,
+                  "spanNulls": false,
+                  "stacking": {
+                     "mode": "none"
+                  }
+               },
+               "links": [
+                  {
+                     "title": "View trace",
+                     "url": "/explore?left={\"datasource\":\"tempo\",\"queries\":[{\"query\":\"${__data.fields.traceIdHidden}\",\"queryType\":\"traceql\"}]}"
+                  }
+               ]
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+         },
+         "id": 1,
+         "options": {
+            "legend": {
+               "displayMode": "list",
+               "placement": "bottom",
+               "showLegend": true
+            },
+            "tooltip": {
+               "mode": "single"
+            }
+         },
+         "pluginVersion": "v11.4.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "tempo",
+                  "uid": "tempo"
+               },
+               "filters": [ ],
+               "limit": 20,
+               "query": "{ resource.service.name = \"qualitative-pipeline\" && name = \"reframeQuote\" } > { span.input_tokens != nil && span.output_tokens != nil }",
+               "queryType": "traceql",
+               "refId": "A",
+               "tableType": "spans"
+            }
+         ],
+         "title": "All Tokens",
+         "transformations": [
+            {
+               "id": "groupBy",
+               "options": {
+                  "fields": {
+                     "Span ID": {
+                        "aggregations": [
+                           "allValues"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "Start time": {
+                        "aggregations": [
+                           "first"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "input_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "output_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "traceIdHidden": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "groupby"
+                     }
+                  }
+               }
+            }
+         ],
+         "type": "timeseries"
+      },
+      {
+         "collapsed": false,
+         "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 8
+         },
+         "id": 2,
+         "panels": [ ],
+         "title": "Claude",
+         "type": "row"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "color": {
+                  "mode": "palette-classic"
+               },
+               "custom": {
+                  "barWidthFactor": 0.10000000000000001,
+                  "drawStyle": "bars",
+                  "fillOpacity": 50,
+                  "lineWidth": 1,
+                  "pointSize": 9,
+                  "showPoints": "always",
+                  "showValues": true,
+                  "spanNulls": false,
+                  "stacking": {
+                     "mode": "none"
+                  }
+               },
+               "links": [
+                  {
+                     "title": "View trace",
+                     "url": "/explore?left={\"datasource\":\"tempo\",\"queries\":[{\"query\":\"${__data.fields.traceIdHidden}\",\"queryType\":\"traceql\"}]}"
+                  }
+               ]
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 9
+         },
+         "id": 3,
+         "options": {
+            "legend": {
+               "displayMode": "list",
+               "placement": "bottom",
+               "showLegend": true
+            },
+            "tooltip": {
+               "mode": "single"
+            }
+         },
+         "pluginVersion": "v11.4.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "tempo",
+                  "uid": "tempo"
+               },
+               "filters": [ ],
+               "limit": 20,
+               "query": "{ resource.service.name = \"qualitative-pipeline\" && span.model =~ \"claude.*\" } >> { span.input_tokens != nil && span.output_tokens != nil }",
+               "queryType": "traceql",
+               "refId": "A",
+               "tableType": "spans"
+            }
+         ],
+         "title": "Claude Tokens",
+         "transformations": [
+            {
+               "id": "groupBy",
+               "options": {
+                  "fields": {
+                     "Span ID": {
+                        "aggregations": [
+                           "allValues"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "Start time": {
+                        "aggregations": [
+                           "first"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "input_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "output_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "traceIdHidden": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "groupby"
+                     }
+                  }
+               }
+            }
+         ],
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "color": {
+                  "mode": "palette-classic"
+               },
+               "custom": {
+                  "barWidthFactor": 0.10000000000000001,
+                  "drawStyle": "bars",
+                  "fillOpacity": 50,
+                  "lineWidth": 1,
+                  "pointSize": 9,
+                  "showPoints": "always",
+                  "showValues": true,
+                  "spanNulls": false,
+                  "stacking": {
+                     "mode": "none"
+                  }
+               },
+               "decimals": 4,
+               "links": [
+                  {
+                     "title": "View trace",
+                     "url": "/explore?left={\"datasource\":\"tempo\",\"queries\":[{\"query\":\"${__data.fields.traceIdHidden}\",\"queryType\":\"traceql\"}]}"
+                  }
+               ],
+               "unit": "currencyUSD"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 9
+         },
+         "id": 4,
+         "options": {
+            "legend": {
+               "displayMode": "list",
+               "placement": "bottom",
+               "showLegend": true
+            },
+            "tooltip": {
+               "mode": "single"
+            }
+         },
+         "pluginVersion": "v11.4.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "tempo",
+                  "uid": "tempo"
+               },
+               "filters": [ ],
+               "limit": 20,
+               "query": "{ resource.service.name = \"qualitative-pipeline\" && span.model =~ \"claude.*\" } >> { span.input_tokens != nil && span.output_tokens != nil }",
+               "queryType": "traceql",
+               "refId": "A",
+               "tableType": "spans"
+            }
+         ],
+         "title": "Claude Cost",
+         "transformations": [
+            {
+               "id": "groupBy",
+               "options": {
+                  "fields": {
+                     "Span ID": {
+                        "aggregations": [
+                           "allValues"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "Start time": {
+                        "aggregations": [
+                           "first"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "input_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "output_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "traceIdHidden": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "groupby"
+                     }
+                  }
+               }
+            },
+            {
+               "id": "sortBy",
+               "options": {
+                  "sort": [
+                     {
+                        "desc": false,
+                        "field": "Start time (first)"
+                     }
+                  ]
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "binary": {
+                     "left": "input_tokens (sum)",
+                     "operator": "*",
+                     "right": "0.000001"
+                  },
+                  "mode": "binary",
+                  "replaceFields": false
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "binary": {
+                     "left": "output_tokens (sum)",
+                     "operator": "*",
+                     "right": "0.000005"
+                  },
+                  "mode": "binary",
+                  "replaceFields": false
+               }
+            },
+            {
+               "id": "organize",
+               "options": {
+                  "renameByName": {
+                     "input_tokens (sum) * 0.000001": "input_cost",
+                     "output_tokens (sum) * 0.000005": "output_cost"
+                  }
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "binary": {
+                     "left": "input_cost",
+                     "operator": "+",
+                     "right": "output_cost"
+                  },
+                  "mode": "binary",
+                  "replaceFields": false
+               }
+            },
+            {
+               "id": "organize",
+               "options": {
+                  "excludeByName": {
+                     "Span ID (allValues)": true,
+                     "input_tokens (sum)": true,
+                     "output_tokens (sum)": true
+                  }
+               }
+            }
+         ],
+         "type": "timeseries"
+      },
+      {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "color": {
+                  "mode": "palette-classic"
+               },
+               "custom": {
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "lineWidth": 2,
+                  "pointSize": 9,
+                  "showPoints": "always",
+                  "spanNulls": false
+               },
+               "decimals": 4,
+               "links": [
+                  {
+                     "title": "View trace",
+                     "url": "/explore?left={\"datasource\":\"tempo\",\"queries\":[{\"query\":\"${__data.fields.traceIdHidden}\",\"queryType\":\"traceql\"}]}"
+                  }
+               ],
+               "unit": "currencyUSD"
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 17
+         },
+         "id": 5,
+         "options": {
+            "legend": {
+               "displayMode": "list",
+               "placement": "bottom",
+               "showLegend": true
+            },
+            "tooltip": {
+               "mode": "single"
+            }
+         },
+         "pluginVersion": "v11.4.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "tempo",
+                  "uid": "tempo"
+               },
+               "filters": [ ],
+               "limit": 20,
+               "query": "{ resource.service.name = \"qualitative-pipeline\" && span.model =~ \"claude.*\" } >> { span.input_tokens != nil && span.output_tokens != nil }",
+               "queryType": "traceql",
+               "refId": "A",
+               "tableType": "spans"
+            }
+         ],
+         "title": "Claude Cumulative Cost",
+         "transformations": [
+            {
+               "id": "groupBy",
+               "options": {
+                  "fields": {
+                     "Span ID": {
+                        "aggregations": [
+                           "allValues"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "Start time": {
+                        "aggregations": [
+                           "first"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "input_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "output_tokens": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "aggregate"
+                     },
+                     "traceIdHidden": {
+                        "aggregations": [
+                           "sum"
+                        ],
+                        "operation": "groupby"
+                     }
+                  }
+               }
+            },
+            {
+               "id": "sortBy",
+               "options": {
+                  "sort": [
+                     {
+                        "desc": false,
+                        "field": "Start time (first)"
+                     }
+                  ]
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "alias": "input_cost",
+                  "binary": {
+                     "left": {
+                        "matcher": {
+                           "id": "byName",
+                           "options": "input_tokens (sum)"
+                        }
+                     },
+                     "operator": "*",
+                     "right": {
+                        "fixed": "0.000001"
+                     }
+                  },
+                  "mode": "binary",
+                  "reduce": {
+                     "reducer": "sum"
+                  },
+                  "replaceFields": false
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "alias": "output_cost",
+                  "binary": {
+                     "left": {
+                        "matcher": {
+                           "id": "byName",
+                           "options": "output_tokens (sum)"
+                        }
+                     },
+                     "operator": "*",
+                     "right": {
+                        "fixed": "0.000005"
+                     }
+                  },
+                  "mode": "binary",
+                  "reduce": {
+                     "reducer": "sum"
+                  },
+                  "replaceFields": false
+               }
+            },
+            {
+               "id": "filterFieldsByName",
+               "options": {
+                  "include": {
+                     "names": [
+                        "traceIdHidden",
+                        "Span ID (allValues)",
+                        "Start time (first)",
+                        "input_cost",
+                        "output_cost"
+                     ]
+                  }
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "alias": "cum_input_cost",
+                  "cumulative": {
+                     "field": "input_cost",
+                     "reducer": "sum"
+                  },
+                  "mode": "cumulativeFunctions",
+                  "reduce": {
+                     "reducer": "sum"
+                  }
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "alias": "cum_output_cost",
+                  "cumulative": {
+                     "field": "output_cost",
+                     "reducer": "sum"
+                  },
+                  "mode": "cumulativeFunctions",
+                  "reduce": {
+                     "reducer": "sum"
+                  }
+               }
+            },
+            {
+               "id": "calculateField",
+               "options": {
+                  "alias": "cum_total_cost",
+                  "binary": {
+                     "left": {
+                        "matcher": {
+                           "id": "byName",
+                           "options": "cum_input_cost"
+                        }
+                     },
+                     "right": {
+                        "matcher": {
+                           "id": "byName",
+                           "options": "cum_output_cost"
+                        }
+                     }
+                  },
+                  "mode": "binary",
+                  "reduce": {
+                     "reducer": "sum"
+                  },
+                  "replaceFields": false
+               }
+            },
+            {
+               "id": "filterFieldsByName",
+               "options": {
+                  "include": {
+                     "names": [
+                        "traceIdHidden",
+                        "Span ID (allValues)",
+                        "Start time (first)",
+                        "cum_input_cost",
+                        "cum_output_cost",
+                        "cum_total_cost"
+                     ]
+                  }
+               }
+            }
+         ],
+         "type": "timeseries"
+      }
+   ],
+   "schemaVersion": 39,
+   "time": {
+      "from": "now-6h",
+      "to": "now"
+   },
+   "timezone": "browser",
+   "title": "qualitative-pipeline"
+}

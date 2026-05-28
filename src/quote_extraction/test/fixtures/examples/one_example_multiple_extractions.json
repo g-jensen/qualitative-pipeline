@@ -1,0 +1,16 @@
+[
+    {
+        "id": "001",
+        "text": "more_example_text",
+        "extractions": [
+            {
+                "extraction_class": "emotional reaction",
+                "extraction_text": "first_extraction_text"
+            },
+            {
+                "extraction_class": "personal rule",
+                "extraction_text": "second_extraction_text"
+            }
+        ]
+    }
+]
