@@ -124,6 +124,24 @@ local basePanel(title) =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withShowPoints('always')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withSpanNulls(false);
 
+local partitionAndRenameTransformations = [
+    {
+      id: 'partitionByValues',
+      options: {
+        fields: ['Name'],
+        keepFields: true,
+        naming: { asLabels: false },
+      },
+    },
+    {
+      id: 'renameByRegex',
+      options: {
+        regex: '(.*Trace ID)',
+        renamePattern: 'traceIdHidden',
+      },
+    },
+];
+
 local tokenPanel(title, query, barWidth=0.2) =
   basePanel(title)
   + g.panel.timeSeries.queryOptions.withTargets([tempoQuery(query)])
@@ -173,6 +191,25 @@ local cumulativePricePanel(title, query) =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(0)
   + g.panel.timeSeries.fieldConfig.defaults.custom.withLineWidth(2);
 
+local durationPanel(title) =
+  basePanel(title)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    g.query.tempo.new(datasourceName, '{ resource.service.name = "' + serviceName + '" }', [])
+    + g.query.tempo.withQueryType('traceql')
+    + g.query.tempo.withTableType('traces')
+    + g.query.tempo.withLimit(20)
+    + g.query.tempo.withRefId('A'),
+  ])
+  + g.panel.timeSeries.queryOptions.withTransformations(partitionAndRenameTransformations)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withDrawStyle('points')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(0)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withPointSize(12)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withShowPoints('auto')
+  + { fieldConfig+: { defaults+: { custom+: {
+    barWidthFactor: 0.6,
+    showValues: false,
+  } } } };
+
 local allTokensQuery =
   '{ resource.service.name = "' + serviceName + '" && name = "reframeQuote" }'
   + ' > { span.input_tokens != nil && span.output_tokens != nil }';
@@ -187,7 +224,8 @@ g.dashboard.new(dashboardName)
 + g.dashboard.time.withTo('now')
 + g.dashboard.withPanels(
   g.util.grid.makeGrid([
-    tokenPanel('All Tokens', allTokensQuery, barWidth=0.2),
+    tokenPanel('Tokens', allTokensQuery, barWidth=0.2),
+    durationPanel('Duration'),
     g.panel.row.new('Claude')
     + g.panel.row.withPanels([
       tokenPanel('Claude Tokens', claudeTokensQuery, barWidth=0.1),

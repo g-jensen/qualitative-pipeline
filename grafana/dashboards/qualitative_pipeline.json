@@ -63,7 +63,7 @@
                "tableType": "spans"
             }
          ],
-         "title": "All Tokens",
+         "title": "Tokens",
          "transformations": [
             {
                "id": "groupBy",
@@ -106,6 +106,90 @@
          "type": "timeseries"
       },
       {
+         "datasource": {
+            "type": "datasource",
+            "uid": "-- Mixed --"
+         },
+         "fieldConfig": {
+            "defaults": {
+               "color": {
+                  "mode": "palette-classic"
+               },
+               "custom": {
+                  "barWidthFactor": 0.59999999999999998,
+                  "drawStyle": "points",
+                  "fillOpacity": 0,
+                  "lineWidth": 1,
+                  "pointSize": 12,
+                  "showPoints": "auto",
+                  "showValues": false,
+                  "spanNulls": false
+               },
+               "links": [
+                  {
+                     "title": "View trace",
+                     "url": "/explore?left={\"datasource\":\"tempo\",\"queries\":[{\"query\":\"${__data.fields.traceIdHidden}\",\"queryType\":\"traceql\"}]}"
+                  }
+               ]
+            }
+         },
+         "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+         },
+         "id": 2,
+         "options": {
+            "legend": {
+               "displayMode": "list",
+               "placement": "bottom",
+               "showLegend": true
+            },
+            "tooltip": {
+               "mode": "single"
+            }
+         },
+         "pluginVersion": "v11.4.0",
+         "targets": [
+            {
+               "datasource": {
+                  "type": "tempo",
+                  "uid": "tempo"
+               },
+               "filters": [ ],
+               "limit": 20,
+               "query": "{ resource.service.name = \"qualitative-pipeline\" }",
+               "queryType": "traceql",
+               "refId": "A",
+               "tableType": "traces"
+            }
+         ],
+         "title": "Duration",
+         "transformations": [
+            {
+               "id": "partitionByValues",
+               "options": {
+                  "fields": [
+                     "Name"
+                  ],
+                  "keepFields": true,
+                  "naming": {
+                     "asLabels": false
+                  }
+               }
+            },
+            {
+               "id": "renameByRegex",
+               "options": {
+                  "regex": "(.*Trace ID)",
+                  "renamePattern": "traceIdHidden"
+               }
+            }
+         ],
+         "type": "timeseries"
+      },
+      {
          "collapsed": false,
          "gridPos": {
             "h": 1,
@@ -113,7 +197,7 @@
             "x": 0,
             "y": 8
          },
-         "id": 2,
+         "id": 3,
          "panels": [ ],
          "title": "Claude",
          "type": "row"
@@ -155,7 +239,7 @@
             "x": 0,
             "y": 9
          },
-         "id": 3,
+         "id": 4,
          "options": {
             "legend": {
                "displayMode": "list",
@@ -262,7 +346,7 @@
             "x": 12,
             "y": 9
          },
-         "id": 4,
+         "id": 5,
          "options": {
             "legend": {
                "displayMode": "list",
@@ -430,7 +514,7 @@
             "x": 0,
             "y": 17
          },
-         "id": 5,
+         "id": 6,
          "options": {
             "legend": {
                "displayMode": "list",
