@@ -608,6 +608,26 @@ def _test__extract__returns_extraction(extract_fn,fs,mocker):
     assert result == HELLO_WORLD_DOCUMENT
     assert result.document_id == args.document_id
 
+def _test__extract__otel(extract_fn,fs,mocker):
+    exporter = h.memory_otel()
+    extract_mock = lx_extract_mock(mocker,HELLO_WORLD_DOCUMENT)
+    args = extraction_args()
+    h.write_bytes(args.file,h.BASIC_BYTES)
+    h.write_file(args.examples_file,h.MULTIPLE_EXAMPLES_MULTIPLE_EXTRACTIONS_TEXT)
+    
+    extract_fn(args)
+    spans = exporter.get_finished_spans()
+    
+    h.assert_spans_contain_name(spans,sut.extract.__name__)
+    assert h.span_by_name(spans,sut.extract.__name__).attributes == vars(args)
+    
+    h.assert_spans_contain_name(spans,"validate_examples")
+    assert h.span_by_name(spans,"validate_examples").attributes == {
+        "minimum_example_count": 1
+    }
+
+    h.assert_spans_contain_name(spans,"langextract")
+
 def _test__extract_fn(extract_fn,fs,mocker):
     _test__extract__automatic_prompt_validation_off(extract_fn,fs,mocker)
     _test__extract__document_content(extract_fn,fs,mocker)
@@ -616,6 +636,7 @@ def _test__extract_fn(extract_fn,fs,mocker):
     _test__extract__config_resolved_model(extract_fn,fs,mocker)
     _test__extract__config_unresolved_model(extract_fn,fs,mocker)
     _test__extract__returns_extraction(extract_fn,fs,mocker)
+    _test__extract__otel(extract_fn,fs,mocker)
 
 def test__extract(fs,mocker):
     _test__extract_fn(sut.extract,fs,mocker)

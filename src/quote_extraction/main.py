@@ -1,5 +1,10 @@
 import argparse
 import extraction as ex
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 DEFAULT_QUESTION = "How do people orient, decide, and react as they notice, choose, and make meaning from their own choices that recently surprised them?"
 
@@ -15,8 +20,17 @@ def parse_args():
     parser.add_argument("--model_url", type=str, default="http://localhost:11434", help="Url of LLM (e.g. if it is locally hosted)")
     return parser.parse_args()
 
+def init_otel(args):
+    resource = Resource.create(attributes={SERVICE_NAME: "qualitative-pipeline"})
+    provider = TracerProvider(resource=resource)
+    processor = SimpleSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4418/v1/traces"))
+    provider.add_span_processor(processor)
+    trace.set_tracer_provider(provider)
+
 def main():
-    ex.extract_and_save(parse_args())
+    args = parse_args()
+    init_otel(args)
+    ex.extract_and_save(args)
 
 if __name__ == "__main__":
     main()

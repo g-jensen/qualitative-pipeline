@@ -1,14 +1,16 @@
 from core import INNER_THINKING, EMOTIONAL_REACTION, PERSONAL_RULE, INNER_COGNITION_TYPES
 import core
 from dataclasses import asdict
+import json
 import langextract as lx
 from langextract import prompt_validation as pv
 from langextract import resolver
 import langextract.providers as providers
 from langextract.providers import router
 import claude_provider
+from opentelemetry import trace
+from open_telemetry import extraction_tracer
 from pathlib import Path
-import json
 import random
 from typing import Callable
 
@@ -165,15 +167,17 @@ The point is to extract quotes relevant to answer the question: \"{question}\"
 """
 
 def _validated_examples(examples_path, minimum_example_count: int):
-    with open(Path(examples_path), 'r') as file:
-        all_examples = examples_from_file(file)
-        filtered_examples = filter_examples(all_examples,minimum_example_count)
-        validate_example = lambda e: load_annotated_document(
-            examples_path,
-            ".examples_cache",
-            e[0]
-        )
-    return list(map(validate_example,filtered_examples))
+    with extraction_tracer().start_as_current_span("validate_examples") as span:
+        span.set_attribute("minimum_example_count",minimum_example_count)
+        with open(Path(examples_path), 'r') as file:
+            all_examples = examples_from_file(file)
+            filtered_examples = filter_examples(all_examples,minimum_example_count)
+            validate_example = lambda e: load_annotated_document(
+                examples_path,
+                ".examples_cache",
+                e[0]
+            )
+        return list(map(validate_example,filtered_examples))
 
 def _config(model_id: str, model_url: str):
     provider_str = None
@@ -192,20 +196,25 @@ def _config(model_id: str, model_url: str):
     )
 
 def extract(args) -> lx.data.AnnotatedDocument:
-    providers.load_builtins_once()
-    extraction = lx.extract(
-        prompt_validation_level=pv.PromptValidationLevel.OFF,
-        text_or_documents=_document_content(args.file),
-        prompt_description=_prompt(args.question),
-        examples=_validated_examples(args.examples_file,args.minimum_example_count),
-        config=_config(args.model,args.model_url)
-        # temperature=0.1,
-        # extraction_passes=2,
-        # max_workers=3,
-        # max_char_buffer=500 # Smaller contexts for better quote matching but also smaller quotes with less context
-    )
-    extraction.document_id = args.document_id
-    return extraction
+    with extraction_tracer().start_as_current_span(extract.__name__) as span:
+        span.set_attributes(vars(args))
+        providers.load_builtins_once()
+        examples = _validated_examples(args.examples_file,args.minimum_example_count)
+        
+        with extraction_tracer().start_as_current_span("langextract") as lx_span:
+            extraction = lx.extract(
+                prompt_validation_level=pv.PromptValidationLevel.OFF,
+                text_or_documents=_document_content(args.file),
+                prompt_description=_prompt(args.question),
+                examples=examples,
+                config=_config(args.model,args.model_url)
+                # temperature=0.1,
+                # extraction_passes=2,
+                # max_workers=3,
+                # max_char_buffer=500 # Smaller contexts for better quote matching but also smaller quotes with less context
+            )
+        extraction.document_id = args.document_id
+        return extraction
 
 def _save_extraction_to_jsonl(extraction,args):
     lx.io.save_annotated_documents(

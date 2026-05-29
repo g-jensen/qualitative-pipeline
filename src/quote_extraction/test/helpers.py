@@ -1,4 +1,8 @@
 from pathlib import Path
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider, ReadableSpan
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
 def noop(*args, **kwargs):
     pass
@@ -39,3 +43,28 @@ def write_bytes(path, content: bytes):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     with open(path, "wb") as file:
         file.write(content)
+
+global_exporter = None
+global_provider = None
+
+def memory_otel():
+    global global_exporter
+    if global_exporter is None:
+        global_exporter = InMemorySpanExporter()
+        processor = SimpleSpanProcessor(global_exporter)
+        global global_provider
+        global_provider = TracerProvider()
+        global_provider.add_span_processor(processor)
+        trace.set_tracer_provider(global_provider)
+    
+    global_exporter.clear()
+
+    return global_exporter
+
+def assert_spans_contain_name(spans: list[ReadableSpan], expected_name: str):
+    assert expected_name in map(lambda s: s.name, spans)
+
+def span_by_name(spans: list[ReadableSpan], name: str):
+    for i, span in enumerate(spans):
+        if span.name == name: return spans[i]
+    return None
