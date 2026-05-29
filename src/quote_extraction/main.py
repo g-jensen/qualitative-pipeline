@@ -18,12 +18,13 @@ def parse_args():
     parser.add_argument("-q",  "--question", type=str, default=DEFAULT_QUESTION, help="Question that the extractions should be relevant to")
     parser.add_argument("-m",  "--model", type=str, required=True, help="Name of the LLM used in processing (e.g. \"claude-haiku-4-5\")")
     parser.add_argument("--model_url", type=str, default="http://localhost:11434", help="Url of LLM (e.g. if it is locally hosted)")
+    parser.add_argument("--otel_url", type=str, default="http://localhost:4418/v1/traces", help="URL to send OpenTelemetry logs")
     return parser.parse_args()
 
 def init_otel(args):
     resource = Resource.create(attributes={SERVICE_NAME: "qualitative-pipeline"})
     provider = TracerProvider(resource=resource)
-    processor = SimpleSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4418/v1/traces"))
+    processor = SimpleSpanProcessor(OTLPSpanExporter(endpoint=args.otel_url))
     provider.add_span_processor(processor)
     trace.set_tracer_provider(provider)
 
