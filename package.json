@@ -19,6 +19,7 @@
     "ajv": "^8.17.1",
     "commander": "^14.0.3",
     "exceljs": "^3.4.0",
+    "express": "^5.2.1",
     "yaml": "^2.7.0"
   },
   "devDependencies": {
