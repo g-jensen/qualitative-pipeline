@@ -1,8 +1,7 @@
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { MockedFunction } from 'vitest';
-
+import { MockedFunction, vi } from 'vitest';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,5 +48,21 @@ export function resetAIMocks(AIMocks: AIMocks, generatedOutputs?: any[]) {
   AIMocks.mockCreateOllama?.mockReturnValue(AIMocks.mockOllamaProvider);
   if (generatedOutputs) {
     AIMocks.mockGenerateText.mockImplementation(returnOutputsFn(generatedOutputs));
+  }
+}
+
+export async function mockAI() {
+  const { generateText, Output } = await import('ai');
+  const { openai } = await import('@ai-sdk/openai');
+  const { anthropic } = await import('@ai-sdk/anthropic');
+  const { ollama, createOllama } = await import('ai-sdk-ollama');
+
+  return {
+    mockGenerateText: vi.mocked(generateText),
+    mockOpenaiProvider: vi.mocked(openai),
+    mockClaudeProvider: vi.mocked(anthropic),
+    mockOllamaProvider: vi.mocked(ollama),
+    mockCreateOllama: vi.mocked(createOllama),
+    mockOutputObject: vi.mocked(Output.object)
   }
 }

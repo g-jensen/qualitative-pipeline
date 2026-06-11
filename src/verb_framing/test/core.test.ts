@@ -1,55 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { vol } from 'memfs';
+import '../../test/setup-ai-mocks.js';
+
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import { z } from 'zod';
 import * as otel_helpers from '../../open_telemetry/test/helpers.js'
-
-vi.mock('ai', async () => {
-  const actual = await vi.importActual('ai');
-  return {
-    ...actual,
-    generateText: vi.fn(),
-    Output: {object: vi.fn()}
-  };
-});
-
-vi.mock('@ai-sdk/openai', () => ({
-  openai: vi.fn(() => 'mocked-openai-model')
-}));
-
-vi.mock('@ai-sdk/anthropic', () => ({
-  anthropic: vi.fn(() => 'mocked-anthropic-model')
-}));
-
-vi.mock('ai-sdk-ollama', () => ({
-  ollama: vi.fn(() => 'mocked-ollama-model'),
-  createOllama: vi.fn(() => vi.fn(() => 'mocked-ollama-model'))
-}));
-
-vi.mock('fs/promises', async () => {
-  const { fs } = await import('memfs');
-  return fs.promises;
-});
-
-import * as sut from '../core.js';
-import { generateText, Output } from 'ai';
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { ollama, createOllama } from 'ai-sdk-ollama';
-import * as local_helpers from './helpers.js';
 import * as helpers from '../../test/helpers.js';
 import { DEFAULT_DOCUMENT_ID, quote } from './helpers.js';
-import { ModelConfig, resolveModel } from '../model-resolver.js';
-import Stream, { PassThrough } from 'stream';
+import { PassThrough } from 'stream';
 import ExcelJS from 'exceljs';
+import { vol } from 'memfs';
+import { resolveModel, ModelConfig } from '../model-resolver.js';
+import * as sut from '../core.js'
 
-const AIMocks = {
-  mockGenerateText: vi.mocked(generateText),
-  mockOpenaiProvider: vi.mocked(openai),
-  mockClaudeProvider: vi.mocked(anthropic),
-  mockOllamaProvider: vi.mocked(ollama),
-  mockCreateOllama: vi.mocked(createOllama),
-  mockOutputObject: vi.mocked(Output.object)
-}
+const AIMocks = await helpers.mockAI();
 
 function create_config(model_id: any, model_url?: any) {
   return {model_id: model_id, model_url: model_url}
