@@ -17,7 +17,7 @@ import { resolveModel } from '../model-resolver.js';
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { ollama, createOllama } from 'ai-sdk-ollama';
-import * as helpers from './helpers.js';
+import * as helpers from '../../test/helpers.js';
 
 const AIMocks = {
   mockOpenaiProvider: vi.mocked(openai),

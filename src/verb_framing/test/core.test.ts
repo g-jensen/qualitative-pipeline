@@ -35,8 +35,8 @@ import { generateText, Output } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { ollama, createOllama } from 'ai-sdk-ollama';
-import * as helpers from './helpers.js';
-import * as ext_helpers from '../../test/helpers.js';
+import * as local_helpers from './helpers.js';
+import * as helpers from '../../test/helpers.js';
 import { DEFAULT_DOCUMENT_ID, quote } from './helpers.js';
 import { ModelConfig, resolveModel } from '../model-resolver.js';
 import Stream, { PassThrough } from 'stream';
@@ -676,8 +676,8 @@ describe('extractionToQuote', () => {
 describe('parseExtractionFile', () => {
   beforeEach(() => {
     vol.fromJSON({
-      '/fixtures/sample_extractions.jsonl': ext_helpers.SAMPLE_EXTRACTIONS_JSONL,
-      '/fixtures/malformed_extraction.jsonl': ext_helpers.MALFORMED_EXTRACTIONS_JSONL
+      '/fixtures/sample_extractions.jsonl': helpers.SAMPLE_EXTRACTIONS_JSONL,
+      '/fixtures/malformed_extraction.jsonl': helpers.MALFORMED_EXTRACTIONS_JSONL
     });
   });
 
@@ -786,7 +786,7 @@ describe('batchReframeQuotes', () => {
 describe('processExtractionFile', () => {
   beforeEach(() => {
     vol.fromJSON({
-      '/fixtures/sample_extractions.jsonl': ext_helpers.SAMPLE_EXTRACTIONS_JSONL
+      '/fixtures/sample_extractions.jsonl': helpers.SAMPLE_EXTRACTIONS_JSONL
     });
   });
 
