@@ -1,6 +1,6 @@
 import '../../test/setup-ai-mocks.js';
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { z } from 'zod';
 import * as otel_helpers from '../../open_telemetry/test/helpers.js'
 import * as helpers from '../../test/helpers.js';

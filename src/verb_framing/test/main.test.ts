@@ -1,53 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import '../../test/setup-ai-mocks.js';
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { vol } from 'memfs';
 import { quote } from './helpers.js';
-
-vi.mock('ai', async () => {
-  const actual = await vi.importActual('ai');
-  return {
-    ...actual,
-    generateText: vi.fn()
-  };
-});
-
-vi.mock('@ai-sdk/openai', () => ({
-  openai: vi.fn(() => 'mocked-openai-model')
-}));
-
-vi.mock('@ai-sdk/anthropic', () => ({
-  anthropic: vi.fn(() => 'mocked-anthropic-model')
-}));
-
-vi.mock('ai-sdk-ollama', () => ({
-  ollama: vi.fn(() => 'mocked-ollama-model'),
-  createOllama: vi.fn(() => vi.fn(() => 'mocked-ollama-model'))
-}));
-
-vi.mock('fs/promises', async () => {
-  const { fs } = await import('memfs');
-  return fs.promises;
-});
-
 import * as sut from '../main.js';
-import { generateText } from 'ai';
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { ollama, createOllama } from 'ai-sdk-ollama';
-import * as helpers from './helpers.js';
+import * as helpers from '../../test/helpers.js';
 import { QuoteClass } from '../core.js';
 
-const AIMocks = {
-  mockGenerateText: vi.mocked(generateText),
-  mockOpenaiProvider: vi.mocked(openai),
-  mockClaudeProvider: vi.mocked(anthropic),
-  mockOllamaProvider: vi.mocked(ollama),
-  mockCreateOllama: vi.mocked(createOllama),
-}
-
-// const mockGenerateText = vi.mocked(generateText);
-// const mockOpenaiProvider = vi.mocked(openai);
-// const mockOllamaProvider = vi.mocked(ollama);
-// const mockCreateOllama = vi.mocked(createOllama);
+const AIMocks = await helpers.mockAI();
 
 describe('createProgram', () => {
   it('creates program with name verb-framing', () => {

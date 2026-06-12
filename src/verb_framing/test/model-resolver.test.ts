@@ -1,30 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import '../../test/setup-ai-mocks.js';
 
-vi.mock('@ai-sdk/openai', () => ({
-  openai: vi.fn(() => 'mocked-openai-model')
-}));
-
-vi.mock('@ai-sdk/anthropic', () => ({
-  anthropic: vi.fn(() => 'mocked-anthropic-model')
-}));
-
-vi.mock('ai-sdk-ollama', () => ({
-  ollama: vi.fn(() => 'mocked-ollama-model'),
-  createOllama: vi.fn(() => vi.fn(() => 'mocked-ollama-model'))
-}));
-
+import { describe, it, expect, beforeEach } from 'vitest';
 import { resolveModel } from '../model-resolver.js';
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { ollama, createOllama } from 'ai-sdk-ollama';
 import * as helpers from '../../test/helpers.js';
 
-const AIMocks = {
-  mockOpenaiProvider: vi.mocked(openai),
-  mockAnthropicProvider: vi.mocked(anthropic),
-  mockOllamaProvider: vi.mocked(ollama),
-  mockCreateOllama: vi.mocked(createOllama)
-}
+const AIMocks = await helpers.mockAI();
 
 describe('resolveModel', () => {
   beforeEach(() => {
@@ -51,7 +31,7 @@ describe('resolveModel', () => {
     const config = { model_id: 'claude-3-opus-20240229' };
     const model = resolveModel(config);
 
-    expect(AIMocks.mockAnthropicProvider).toHaveBeenCalledWith('claude-3-opus-20240229');
+    expect(AIMocks.mockClaudeProvider).toHaveBeenCalledWith('claude-3-opus-20240229');
     expect(model).toBe('mocked-anthropic-model');
   });
 
@@ -59,7 +39,7 @@ describe('resolveModel', () => {
     const config = { model_id: 'claude-3-5-sonnet-20241022' };
     const model = resolveModel(config);
 
-    expect(AIMocks.mockAnthropicProvider).toHaveBeenCalledWith('claude-3-5-sonnet-20241022');
+    expect(AIMocks.mockClaudeProvider).toHaveBeenCalledWith('claude-3-5-sonnet-20241022');
     expect(model).toBe('mocked-anthropic-model');
   });
 
