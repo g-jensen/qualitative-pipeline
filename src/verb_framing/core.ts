@@ -81,19 +81,18 @@ function reframedQuoteToString(quote: ReframedQuote) {
   return str
 }
 
-export async function processExtractionFile(args: { file: string; model_id: string; model_url: string }): Promise<ReframedQuote[]> {
-  return wrapOTEL(verbFramingTracer(), processExtractionFile.name, async (_span) => {
-    const documents = await self.parseExtractionFile(args.file);
+export async function processExtraction(extraction: string, model_id: string, model_url: string): Promise<ReframedQuote[]> {
+  return wrapOTEL(verbFramingTracer(), processExtraction.name, async (_span) => {
+    const documents = await self.parseExtraction(extraction);
     const quotes = documents.map(d => d.quotes).flat();
-    const config = { model_id: args.model_id, model_url: args.model_url }
+    const config = { model_id: model_id, model_url: model_url }
     return await self.batchReframeQuotes(quotes, config);
   })
 }
 
-export async function parseExtractionFile(path: string): Promise<Document[]> {
-  return wrapOTEL(verbFramingTracer(), parseExtractionFile.name, async (_span) => {
-    const content = await promises.readFile(path, 'utf-8');
-    const lines = content.trim().split('\n');
+export async function parseExtraction(extraction: string): Promise<Document[]> {
+  return wrapOTEL(verbFramingTracer(), parseExtraction.name, async (_span) => {
+    const lines = extraction.trim().split('\n');
     const documents: Document[] = [];
     
     for (const line of lines) {
@@ -110,6 +109,13 @@ export async function parseExtractionFile(path: string): Promise<Document[]> {
       }
     }
     return documents;
+  })
+}
+
+export async function parseExtractionFile(path: string): Promise<Document[]> {
+  return wrapOTEL(verbFramingTracer(), parseExtractionFile.name, async (_span) => {
+    const content = await promises.readFile(path, 'utf-8');
+    return parseExtraction(content)
   })
 }
 

@@ -745,18 +745,8 @@ describe('batchReframeQuotes', () => {
   })
 });
 
-describe('processExtractionFile', () => {
-  beforeEach(() => {
-    vol.fromJSON({
-      '/fixtures/sample_extractions.jsonl': helpers.SAMPLE_EXTRACTIONS_JSONL
-    });
-  });
-
-  afterEach(() => {
-    vol.reset();
-  });
-
-  it('orchestrates parsing and reframing with provided CLI args', async () => {    
+describe('processExtractions', () => {
+  it('orchestrates parsing and reframing with provided args', async () => {
     const quotes = [
       quote(sut.QuoteClass.INNER_THINKING, 'I really like Bob Hope'),
       quote(sut.QuoteClass.EMOTIONAL_REACTION, 'The show was pretty disappointing'),
@@ -773,11 +763,11 @@ describe('processExtractionFile', () => {
       model_id: 'gpt-4',
       model_url: 'https://api.openai.com/v1'
     }
-    const result = await sut.processExtractionFile({
-      file: '/fixtures/sample_extractions.jsonl',
-      model_id: config.model_id,
-      model_url: config.model_url
-    });
+    const result = await sut.processExtraction(
+      helpers.SAMPLE_EXTRACTIONS_JSONL,
+      config.model_id,
+      config.model_url
+    );
     
     expect(result).toEqual([
       {original: quotes[0], verbs: ["Like"], keyPoint: "Bob Hope", supportingDetail: ""},
@@ -803,15 +793,15 @@ describe('processExtractionFile', () => {
       model_id: 'gpt-4',
       model_url: 'https://api.openai.com/v1'
     }
-    await sut.processExtractionFile({
-      file: '/fixtures/sample_extractions.jsonl',
-      model_id: config.model_id,
-      model_url: config.model_url
-    });
+    await sut.processExtraction(
+      helpers.SAMPLE_EXTRACTIONS_JSONL,
+      config.model_id,
+      config.model_url
+    );
     
     otel_helpers.expectSpansContainName(
       exporter.getFinishedSpans(),
-      sut.processExtractionFile.name
+      sut.processExtraction.name
     )
   })
 });
