@@ -13,6 +13,7 @@ from open_telemetry import extraction_tracer
 from pathlib import Path
 import random
 from typing import Callable
+from langextract import data_lib
 
 def extraction_from_json(json_extraction):
     return lx.data.Extraction(
@@ -215,6 +216,10 @@ def extract(args) -> lx.data.AnnotatedDocument:
             )
         extraction.document_id = args.document_id
         return extraction
+
+def _extractions_to_jsonl(annotated_document: lx.data.AnnotatedDocument) -> str:
+    doc_dict = data_lib.annotated_document_to_dict(annotated_document)
+    return json.dumps(doc_dict, ensure_ascii=False) + '\n'
 
 def _save_extraction_to_jsonl(extraction,args):
     lx.io.save_annotated_documents(

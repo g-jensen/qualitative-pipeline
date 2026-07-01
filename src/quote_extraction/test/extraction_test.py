@@ -8,6 +8,8 @@ import extraction as sut
 from pathlib import Path
 import pytest
 import pytest_mock
+import json
+from langextract import data_lib
 
 class ExtractionArgs:
     file: str
@@ -57,6 +59,10 @@ def lx_extract_mock(mocker,return_value):
 
 def lx_load_documents(path):
     return next(lx.io.load_annotated_documents_jsonl(Path(path),show_progress=False))
+
+def lx_load_documents_str(jsonl: str):
+    doc_dict = json.loads(jsonl.strip())
+    return data_lib.dict_to_annotated_document(doc_dict)
 
 HELLO_WORLD_DOCUMENT = lx.data.AnnotatedDocument(
     text="Hello, World!",
@@ -657,6 +663,10 @@ def test__extract_and_save__saves_extraction(fs,mocker):
     save_func_args = []
     sut.extract_and_save(args,lambda doc,args: save_func_args.append((doc,args)))
     assert save_func_args == [(HELLO_WORLD_DOCUMENT,args)]
+
+def test__extractions_to_jsonl__no_extractions(fs, mocker):
+    jsonl = sut._extractions_to_jsonl(HELLO_WORLD_DOCUMENT)
+    assert HELLO_WORLD_DOCUMENT == lx_load_documents_str(jsonl)
 
 def _test__saves_extraction_to_jsonl_by_default(args,test_fn,fs,mocker):
     expected_document = HELLO_WORLD_DOCUMENT
