@@ -1,4 +1,5 @@
 .DS_Store
+Session.vim
 node_modules/
 dist/
 coverage/
