@@ -222,11 +222,8 @@ def _extraction_to_jsonl(annotated_document: lx.data.AnnotatedDocument) -> str:
     return json.dumps(doc_dict, ensure_ascii=False) + '\n'
 
 def _save_extraction_to_jsonl(extraction,args):
-    lx.io.save_annotated_documents(
-        [extraction],
-        output_name=args.output,
-        output_dir=".",
-    )
+    with open(args.output, "w") as f:
+        f.write(_extraction_to_jsonl(extraction))
 
 def extract_and_save(args, save_func: Callable[[lx.data.AnnotatedDocument, any], None] = _save_extraction_to_jsonl) -> lx.data.AnnotatedDocument:
     result = extract(args)
