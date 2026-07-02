@@ -217,7 +217,7 @@ def extract(args) -> lx.data.AnnotatedDocument:
         extraction.document_id = args.document_id
         return extraction
 
-def _extractions_to_jsonl(annotated_document: lx.data.AnnotatedDocument) -> str:
+def _extraction_to_jsonl(annotated_document: lx.data.AnnotatedDocument) -> str:
     doc_dict = data_lib.annotated_document_to_dict(annotated_document)
     return json.dumps(doc_dict, ensure_ascii=False) + '\n'
 

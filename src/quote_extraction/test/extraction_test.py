@@ -664,8 +664,8 @@ def test__extract_and_save__saves_extraction(fs,mocker):
     sut.extract_and_save(args,lambda doc,args: save_func_args.append((doc,args)))
     assert save_func_args == [(HELLO_WORLD_DOCUMENT,args)]
 
-def test__extractions_to_jsonl__no_extractions(fs, mocker):
-    jsonl = sut._extractions_to_jsonl(HELLO_WORLD_DOCUMENT)
+def test__extraction_to_jsonl(fs, mocker):
+    jsonl = sut._extraction_to_jsonl(HELLO_WORLD_DOCUMENT)
     assert HELLO_WORLD_DOCUMENT == lx_load_documents_str(jsonl)
 
 def _test__saves_extraction_to_jsonl_by_default(args,test_fn,fs,mocker):
