@@ -20,6 +20,6 @@ def test__main__full_pass_without_errors(fs,mocker):
     ]
     with patch.object(sys, 'argv', command):
         args = sut.parse_args()
-        extraction_test._test__saves_extraction_to_jsonl_by_default(
+        extraction_test._test__saves_extraction_to_file(
             args, sut.main, fs, mocker
         )

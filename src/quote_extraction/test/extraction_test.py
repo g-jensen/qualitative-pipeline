@@ -668,7 +668,7 @@ def test__extraction_to_jsonl(fs, mocker):
     jsonl = sut._extraction_to_jsonl(HELLO_WORLD_DOCUMENT)
     assert HELLO_WORLD_DOCUMENT == lx_load_documents_str(jsonl)
 
-def _test__saves_extraction_to_jsonl_by_default(args,test_fn,fs,mocker):
+def _test__saves_extraction_to_file(args,test_fn,fs,mocker):
     expected_document = HELLO_WORLD_DOCUMENT
     extract_mock = lx_extract_mock(mocker,expected_document)
     h.write_bytes(args.file,h.BASIC_BYTES)
@@ -682,10 +682,10 @@ def _test__saves_extraction_to_jsonl_by_default(args,test_fn,fs,mocker):
 
     assert expected_document == loaded_document
 
-def test__extract_and_save__saves_extraction_to_jsonl_by_default(fs,mocker):
+def test__extract_and_save__saves_extraction_to_file_by_default(fs,mocker):
     args = extraction_args()
     test_fn = lambda: sut.extract_and_save(args)
-    _test__saves_extraction_to_jsonl_by_default(
+    _test__saves_extraction_to_file(
         args, test_fn, fs, mocker
     )
 
