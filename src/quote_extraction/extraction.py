@@ -221,11 +221,11 @@ def _extraction_to_jsonl(annotated_document: lx.data.AnnotatedDocument) -> str:
     doc_dict = data_lib.annotated_document_to_dict(annotated_document)
     return json.dumps(doc_dict, ensure_ascii=False) + '\n'
 
-def _save_extraction_to_jsonl(extraction,args):
+def _save_extraction_to_file(extraction,args):
     with open(args.output, "w") as f:
         f.write(_extraction_to_jsonl(extraction))
 
-def extract_and_save(args, save_func: Callable[[lx.data.AnnotatedDocument, any], None] = _save_extraction_to_jsonl) -> lx.data.AnnotatedDocument:
+def extract_and_save(args, save_func: Callable[[lx.data.AnnotatedDocument, any], None] = _save_extraction_to_file) -> lx.data.AnnotatedDocument:
     result = extract(args)
     save_func(result,args)
     return result
