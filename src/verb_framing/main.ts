@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { processExtractionFile, generateXLSX } from './core.js';
+import { processExtraction, generateXLSX, parseExtractionFile } from './core.js';
 import * as self from './main.js';
 import { Command } from 'commander';
 import { NodeSDK } from '@opentelemetry/sdk-node';
@@ -52,11 +52,8 @@ export async function main() {
   sdk.start();
 
   const result = await wrapOTEL(verbFramingTracer(), 'verb-framing', async (span) => {
-    const reframed = await processExtractionFile({
-      file: args.file!,
-      model_id: args.model!,
-      model_url: args.modelUrl!
-    });
+    const extraction = fs.readFileSync(args.file!).toString();
+    const reframed = await processExtraction(extraction,args.model!,args.modelUrl!);
 
     span.setAttributes({
       'extractions_file': args.file,
