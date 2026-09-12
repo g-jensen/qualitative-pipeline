@@ -1,4 +1,4 @@
-import main as sut
+import cli as sut
 import pytest
 import pytest_mock
 from typer.testing import CliRunner
