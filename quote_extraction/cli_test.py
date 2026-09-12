@@ -7,7 +7,7 @@ from typer.testing import CliRunner
 runner = CliRunner()
 
 
-def test_app():
+def test_cli():
     result = runner.invoke(sut.app, ["--port=123"])
     assert result.exit_code == 0
     assert "Serving on port 123\n" == result.output
