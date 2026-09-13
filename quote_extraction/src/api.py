@@ -8,9 +8,16 @@ def create_grpc_server(max_num_workers: int):
     return grpc.server(futures.ThreadPoolExecutor(max_workers=max_num_workers))
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def serve(port: int, max_num_workers: int) -> grpc.Server:
     server = create_grpc_server(max_num_workers)
     register_quote_extraction(server)
-    server.add_insecure_port(f"[::]:{port}")
+    address = f"[::]:{port}"
+    server.add_insecure_port(address)
     server.start()
+    logger.info(f"Serving at {address}")
     server.wait_for_termination()
