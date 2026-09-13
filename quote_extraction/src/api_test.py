@@ -1,16 +1,14 @@
 import api as sut
 import grpc
 import pytest
+import test_util
 from unittest.mock import MagicMock
 from pytest_mock import MockerFixture
 import registrar_test
 
 
 @pytest.fixture
-def mocker(pytestconfig: pytest.Config):
-    mocker = MockerFixture(pytestconfig)
-    yield mocker
-    mocker.stopall()
+def mocker(pytestconfig): return test_util.mocker(pytestconfig)
 
 
 def server_mock(mocker: MockerFixture):

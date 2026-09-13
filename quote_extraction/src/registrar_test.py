@@ -1,15 +1,14 @@
 import registrar as sut
 import grpc
 import pytest
+import test_util
 from unittest.mock import MagicMock
 from pytest_mock import MockerFixture
 from servicers.quote_extraction import QuoteExtractionServicer
 
+
 @pytest.fixture
-def mocker(pytestconfig: pytest.Config):
-    mocker = MockerFixture(pytestconfig)
-    yield mocker
-    mocker.stopall()
+def mocker(pytestconfig): return test_util.mocker(pytestconfig)
 
 
 def patch_grpc_quote_extraction(mocker: MockerFixture):
