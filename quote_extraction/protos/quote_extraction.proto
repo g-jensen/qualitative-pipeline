@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package quoteextraction;
+
+message ExtractionRequest {
+    string topic = 1;
+    string document = 2;
+    string model = 3;
+    int32 min_example_count = 4;
+}
+
+message QuoteInterval {
+    int32 start = 1;
+    int32 end = 2;
+}
+
+message Extraction {
+    string class = 1;
+    string content = 2;
+
+    // Interval within the original document in which the content comes from
+    QuoteInterval quote_interval = 3;
+}
+
+// LLM-generated quote extractions on a specific topic from a document
+service QuoteExtraction {
+    rpc Extract(ExtractionRequest) returns (stream Extraction);
+}
