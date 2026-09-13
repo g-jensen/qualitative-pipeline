@@ -23,24 +23,24 @@ def patch_grpc_server(mocker: MockerFixture):
 
 def assert_serves(
     server_stub: grpc.Server, grpc_stub: MagicMock, quote_extraction_stub: MagicMock, 
-    server: grpc.Server, port: int, max_num_workers: int
+    port: int, max_num_workers: int
 ):
     grpc_stub.assert_called_once_with(max_num_workers)
     registrar_test.assert_registered_quote_extraction(quote_extraction_stub, server_stub)
     server_stub.add_insecure_port.assert_called_once_with(f"[::]:{port}")
     server_stub.start.assert_called_once()
-    assert server_stub == server
+    server_stub.wait_for_termination.assert_called_once()
 
 
 def test__serve(mocker):
     quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
     (grpc_stub, server_stub) = patch_grpc_server(mocker)
 
-    server = sut.serve(port=8080, max_num_workers=10)
+    sut.serve(port=8080, max_num_workers=10)
     
     assert_serves(
         server_stub, grpc_stub, quote_extraction_stub,
-        server, port=8080, max_num_workers=10
+        port=8080, max_num_workers=10
     )
 
 
@@ -48,9 +48,9 @@ def test_forcing__serve(mocker):
     quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
     (grpc_stub, server_stub) = patch_grpc_server(mocker)
 
-    server = sut.serve(port=1234, max_num_workers=5)
+    sut.serve(port=1234, max_num_workers=5)
     
     assert_serves(
         server_stub, grpc_stub, quote_extraction_stub,
-        server, port=1234, max_num_workers=5
+        port=1234, max_num_workers=5
     )

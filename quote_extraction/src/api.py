@@ -13,4 +13,4 @@ def serve(port: int, max_num_workers: int) -> grpc.Server:
     register_quote_extraction(server)
     server.add_insecure_port(f"[::]:{port}")
     server.start()
-    return server
+    server.wait_for_termination()
