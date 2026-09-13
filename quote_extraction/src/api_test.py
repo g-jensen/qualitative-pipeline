@@ -30,29 +30,23 @@ def assert_serves(
     assert mock_server == server
 
 
-def test_control__serve(mocker):
+def pub_test__serve(mocker: MockerFixture, port: int, max_num_workers: int):
     quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
     mock_server_factory = server_factory_mock(mocker)
     mock_server = server_mock(mocker)
     mock_server_factory.create.return_value = mock_server
     
-    server = sut.serve(mock_server_factory, port=8080, max_num_workers=10)
+    server = sut.serve(mock_server_factory, port, max_num_workers)
     
     assert_serves(
         mock_server, mock_server_factory, quote_extraction_stub,
-        server, port=8080, max_num_workers=10
+        server, port, max_num_workers
     )
+
+
+def test_control__serve(mocker):
+    pub_test__serve(mocker, port=8080, max_num_workers=10)
 
 
 def test_forcing__serve(mocker):
-    quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
-    mock_server_factory = server_factory_mock(mocker)
-    mock_server = server_mock(mocker)
-    mock_server_factory.create.return_value = mock_server
-    
-    server = sut.serve(mock_server_factory, port=1234, max_num_workers=5)
-    
-    assert_serves(
-        mock_server, mock_server_factory, quote_extraction_stub,
-        server, port=1234, max_num_workers=5
-    )
+    pub_test__serve(mocker, port=1234, max_num_workers=5)
