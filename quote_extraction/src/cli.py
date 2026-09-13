@@ -1,14 +1,10 @@
 import typer
 import api
-import os
+
 
 app = typer.Typer()
 
 
-def should_reload():
-    return (os.environ.get("RUN_MODE") != "production")
-
-
 @app.command()
-def serve(port: int = 8080):
-    api.serve(1234)
+def serve(port: int=8080, max_workers: int=10):
+    api.serve(port, max_workers)
