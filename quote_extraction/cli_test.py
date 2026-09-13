@@ -71,7 +71,7 @@ def test__cli__default_run_mode(runner, mocker, monkeypatch):
     (stub, result) = run_patched_app(runner, mocker, args=[])
 
     assert_ran_on_localhost(stub,result)
-    assert_with_reload(stub, True)
+    assert_with_reload(stub, should_reload=True)
 
 
 def test__cli__production_run_mode(runner, mocker, monkeypatch):
@@ -79,4 +79,4 @@ def test__cli__production_run_mode(runner, mocker, monkeypatch):
     (stub, result) = run_patched_app(runner, mocker, args=[])
 
     assert_ran_on_localhost(stub,result)
-    assert_with_reload(stub, False)
+    assert_with_reload(stub, should_reload=False)
