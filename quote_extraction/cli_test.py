@@ -29,51 +29,54 @@ def run_patched_app(runner: CliRunner, mocker: MockerFixture, args: Sequence[str
     return (stub, result)
 
 
-def assert_result_sucess(result: TyperResult):
-    assert result.exit_code == 0
-
-
-def assert_runs_with_port(runner: CliRunner, mocker: MockerFixture, port: int|None, args: Sequence[str]):
-    (stub, result) = run_patched_app(runner, mocker, args)
-
-    assert_result_sucess(result)
+def assert_with_port(stub: MagicMock, port: int|None):
     assert len(stub.call_args_list) == 1
     assert stub.call_args_list[0].kwargs["port"] == port
 
 
-def assert_runs_with_reload(stub: MagicMock, _reload: bool):
+def assert_with_reload(stub: MagicMock, should_reload: bool):
     assert len(stub.call_args_list) == 1
-    assert stub.call_args_list[0].kwargs.get("reload") == _reload
+    assert stub.call_args_list[0].kwargs.get("reload") == should_reload
 
 
-def test__cli__runs_app_on_localhost(runner, mocker):
-    (stub, result) = run_patched_app(runner, mocker, args=[])
-
-    assert_result_sucess(result)
+def assert_ran_on_localhost(stub: MagicMock, result: TyperResult):
+    assert result.exit_code == 0
     assert len(stub.call_args_list) == 1
     assert stub.call_args_list[0].args == ("api:app",)
     assert stub.call_args_list[0].kwargs["host"] == "127.0.0.1"
 
 
+def test__cli__runs_app_on_localhost(runner, mocker):
+    (stub, result) = run_patched_app(runner, mocker, args=[])
+    
+    assert_ran_on_localhost(stub,result)
+
+
 def test__cli__default_port(runner, mocker):
-    assert_runs_with_port(runner, mocker, port=8080, args=[])
+    (stub, result) = run_patched_app(runner, mocker, args=[])
+    
+    assert_ran_on_localhost(stub,result)
+    assert_with_port(stub, port=8080)
 
 
 def test__cli__custom_port(runner, mocker):
-    assert_runs_with_port(runner, mocker, port=1234, args=["--port=1234"])
+    (stub, result) = run_patched_app(runner, mocker, args=["--port=1234"])
+    
+    assert_ran_on_localhost(stub,result)
+    assert_with_port(stub, port=1234)
 
 
 def test__cli__default_run_mode(runner, mocker, monkeypatch):
     monkeypatch.setenv("RUN_MODE", "")
     (stub, result) = run_patched_app(runner, mocker, args=[])
 
-    assert_result_sucess(result)
-    assert_runs_with_reload(stub, True)
+    assert_ran_on_localhost(stub,result)
+    assert_with_reload(stub, True)
 
 
 def test__cli__production_run_mode(runner, mocker, monkeypatch):
     monkeypatch.setenv("RUN_MODE", "production")
     (stub, result) = run_patched_app(runner, mocker, args=[])
 
-    assert_result_sucess(result)
-    assert_runs_with_reload(stub, False)
+    assert_ran_on_localhost(stub,result)
+    assert_with_reload(stub, False)
