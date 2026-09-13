@@ -6,6 +6,7 @@ from typer.testing import CliRunner
 from typer.testing import Result as TyperResult
 from typing import Sequence
 
+
 @pytest.fixture
 def runner():
     return CliRunner()
