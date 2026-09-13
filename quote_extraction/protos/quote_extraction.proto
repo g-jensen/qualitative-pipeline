@@ -22,7 +22,7 @@ message Extraction {
     QuoteInterval quote_interval = 3;
 }
 
-// LLM-generated quote extractions on a specific topic from a document
+// On-topic LLM-generated quote extractions from a document
 service QuoteExtraction {
     rpc Extract(ExtractionRequest) returns (stream Extraction);
 }
