@@ -20,7 +20,7 @@ def mock_unvicorn(mocker: MockerFixture, stub=None):
     mocker.patch('uvicorn.run', new=stub)
 
 
-def assert_ran_with_port(runner: CliRunner, mocker: MockerFixture, port: int | None, args: Sequence[str]):
+def assert_runs_with_port(runner: CliRunner, mocker: MockerFixture, port: int | None, args: Sequence[str]):
     stub = mocker.stub()
     mock_unvicorn(mocker,stub=stub)
     
@@ -31,8 +31,8 @@ def assert_ran_with_port(runner: CliRunner, mocker: MockerFixture, port: int | N
 
 
 def test__cli__default_port(runner, mocker):
-    assert_ran_with_port(runner, mocker, port=8080, args=[])
+    assert_runs_with_port(runner, mocker, port=8080, args=[])
 
 
 def test__cli__custom_port(runner, mocker):
-    assert_ran_with_port(runner, mocker, port=1234, args=["--port=1234"])
+    assert_runs_with_port(runner, mocker, port=1234, args=["--port=1234"])
