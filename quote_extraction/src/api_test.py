@@ -15,38 +15,42 @@ def server_mock(mocker: MockerFixture):
     return mocker.MagicMock(spec=grpc.Server)
 
 
-def server_factory_mock(mocker: MockerFixture):
-    return mocker.MagicMock(spec=sut.ServerFactory)
+def patch_grpc_server(mocker: MockerFixture):
+    server = server_mock(mocker)
+    stub = mocker.patch("api.create_grpc_server", return_value=server)
+    return (stub, server)
 
 
 def assert_serves(
-    mock_server: grpc.Server, mock_server_factory: sut.ServerFactory, quote_extraction_stub: MagicMock, 
+    server_stub: grpc.Server, grpc_stub: MagicMock, quote_extraction_stub: MagicMock, 
     server: grpc.Server, port: int, max_num_workers: int
 ):
-    mock_server_factory.create.assert_called_once_with(max_num_workers)
-    registrar_test.assert_registered_quote_extraction(quote_extraction_stub, mock_server)
-    mock_server.add_insecure_port.assert_called_once_with(f"[::]:{port}")
-    mock_server.start.assert_called_once()
-    assert mock_server == server
+    grpc_stub.assert_called_once_with(max_num_workers)
+    registrar_test.assert_registered_quote_extraction(quote_extraction_stub, server_stub)
+    server_stub.add_insecure_port.assert_called_once_with(f"[::]:{port}")
+    server_stub.start.assert_called_once()
+    assert server_stub == server
 
 
-def _test__serve(mocker: MockerFixture, port: int, max_num_workers: int):
+def test__serve(mocker):
     quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
-    mock_server_factory = server_factory_mock(mocker)
-    mock_server = server_mock(mocker)
-    mock_server_factory.create.return_value = mock_server
-    
-    server = sut.serve(mock_server_factory, port, max_num_workers)
+    (grpc_stub, server_stub) = patch_grpc_server(mocker)
+
+    server = sut.serve(port=8080, max_num_workers=10)
     
     assert_serves(
-        mock_server, mock_server_factory, quote_extraction_stub,
-        server, port, max_num_workers
+        server_stub, grpc_stub, quote_extraction_stub,
+        server, port=8080, max_num_workers=10
     )
 
 
-def test_control__serve(mocker):
-    _test__serve(mocker, port=8080, max_num_workers=10)
-
-
 def test_forcing__serve(mocker):
-    _test__serve(mocker, port=1234, max_num_workers=5)
+    quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
+    (grpc_stub, server_stub) = patch_grpc_server(mocker)
+
+    server = sut.serve(port=1234, max_num_workers=5)
+    
+    assert_serves(
+        server_stub, grpc_stub, quote_extraction_stub,
+        server, port=1234, max_num_workers=5
+    )
