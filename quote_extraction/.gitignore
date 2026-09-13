@@ -1,2 +1,6 @@
 .tasks
 ..tasks.done
+
+src/servicers/*/*_pb2.py
+src/servicers/*/*_pb2_grpc.py
+src/servicers/*/*_pb2.pyi

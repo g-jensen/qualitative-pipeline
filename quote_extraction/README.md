@@ -9,9 +9,14 @@ Requires the `uv` Python package manager
 uv sync --all-groups
 ```
 
+### Generate Protobuf Files
+```bash
+./generate_protos.sh
+```
+
 ### Run
 ```bash
-python3 src/main.py
+uv run src/main.py
 ```
 
 ### Test
