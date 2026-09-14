@@ -1,7 +1,7 @@
 import api as sut
 import grpc
 import pytest
-import test_util
+import test_util as tutil
 from unittest.mock import MagicMock
 from pytest_mock import MockerFixture
 import registrar_test
@@ -9,7 +9,7 @@ import logging
 
 
 @pytest.fixture
-def mocker(pytestconfig): return test_util.mocker(pytestconfig)
+def mocker(pytestconfig): return tutil.mocker(pytestconfig)
 
 
 def server_mock(mocker: MockerFixture):
@@ -20,10 +20,6 @@ def patch_grpc_server(mocker: MockerFixture):
     server = server_mock(mocker)
     stub = mocker.patch("api.create_grpc_server", return_value=server)
     return (stub, server)
-
-
-def log_capture(caplog: pytest.LogCaptureFixture):
-    return caplog.at_level(logging.INFO)
 
 
 def assert_logged(caplog: pytest.LogCaptureFixture, levelname: str, message: str):
@@ -49,7 +45,7 @@ def test__serve(mocker, caplog):
     quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
     (grpc_stub, server_stub) = patch_grpc_server(mocker)
 
-    with log_capture(caplog):
+    with tutil.log_capture(caplog):
         sut.serve(port=8080, max_num_workers=10)
     
     assert_serves(
@@ -62,7 +58,7 @@ def test_forcing__serve(mocker, caplog):
     quote_extraction_stub = registrar_test.patch_grpc_quote_extraction(mocker)
     (grpc_stub, server_stub) = patch_grpc_server(mocker)
 
-    with log_capture(caplog):
+    with tutil.log_capture(caplog):
         sut.serve(port=1234, max_num_workers=5)
 
     assert_serves(
