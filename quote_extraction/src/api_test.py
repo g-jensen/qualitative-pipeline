@@ -34,11 +34,11 @@ def assert_serves(
 ):
     grpc_stub.assert_called_once_with(max_num_workers)
     registrar_test.assert_registered_quote_extraction(quote_extraction_stub, server_stub)
-    server_stub.add_insecure_port.assert_called_once_with(f"[::]:{port}")
+    server_stub.add_insecure_port.assert_called_once_with(f"127.0.0.1:{port}")
     server_stub.start.assert_called_once()
     server_stub.wait_for_termination.assert_called_once()
     
-    assert_logged(caplog, "INFO", f"Serving at [::]:{port}")
+    assert_logged(caplog, "INFO", f"Serving at http://127.0.0.1:{port}")
 
 
 def test__serve(mocker, caplog):
