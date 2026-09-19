@@ -1,6 +1,5 @@
-.tasks
-..tasks.done
+**/__pycache__/*
+.venv
+.pytest_cache
 
-src/servicers/*/*_pb2.py
-src/servicers/*/*_pb2_grpc.py
-src/servicers/*/*_pb2.pyi
+protos/*

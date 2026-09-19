@@ -1,0 +1,9 @@
+from protos import ${PROTO_NAME}_pb2_grpc
+from protos import ${PROTO_NAME}_pb2
+
+
+class ${SERVICE_NAME}Servicer(${PROTO_NAME}_pb2_grpc.${SERVICE_NAME}Servicer):
+    def __init__(self):
+        return
+    
+${PROCEDURE_SRC[@]}

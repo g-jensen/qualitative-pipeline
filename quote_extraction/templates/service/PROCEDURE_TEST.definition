@@ -1,0 +1,5 @@
+def test__${PROCEDURE_NAME_LOWER}(grpc_stub):
+    request = ${PROTO_NAME}_pb2.${PROCEDURE_INPUT_TYPE}()
+    response = grpc_stub.${PROCEDURE_NAME}(request)
+
+

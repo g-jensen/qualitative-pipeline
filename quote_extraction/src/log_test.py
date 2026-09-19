@@ -1,11 +1,8 @@
-import log as sut
+from . import log as sut
 import logging
 from sys import stdout
-import test_util as tutil
+from . import test_util as tutil
 import pytest
-
-@pytest.fixture
-def mocker(pytestconfig): return tutil.mocker(pytestconfig)
 
 
 def patch_basic_config(mocker):

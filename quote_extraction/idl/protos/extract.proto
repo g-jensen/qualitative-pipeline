@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package extract;
+
+message ExtractionRequest {
+    string topic = 1;
+    string document = 2;
+    string model = 3;
+}
+
+message Interval {
+    int32 start = 1;
+    int32 end = 2;
+}
+
+
+message Extraction {
+    string text = 1;
+    string class = 2;
+    Interval interval = 3;
+}
+
+service Extract {
+    rpc Call(ExtractionRequest) returns (stream Extraction);
+}

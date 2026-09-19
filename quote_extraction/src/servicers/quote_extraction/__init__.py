@@ -1,2 +1,0 @@
-from .servicer import QuoteExtractionServicer
-

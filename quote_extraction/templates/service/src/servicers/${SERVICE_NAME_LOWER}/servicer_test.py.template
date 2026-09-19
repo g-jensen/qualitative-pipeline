@@ -1,0 +1,20 @@
+from . import servicer as sut
+import pytest
+
+from protos import ${PROTO_NAME}_pb2
+from protos import ${PROTO_NAME}_pb2_grpc
+
+
+@pytest.fixture(scope="module")
+def grpc_add_to_server(): return ${PROTO_NAME}_pb2_grpc.add_${SERVICE_NAME}Servicer_to_server
+
+
+@pytest.fixture(scope="module")
+def grpc_servicer(): return sut.${SERVICE_NAME}Servicer()
+
+
+@pytest.fixture(scope="module")
+def grpc_stub_cls(): return ${PROTO_NAME}_pb2_grpc.${SERVICE_NAME}Stub
+
+
+${PROCEDURE_TEST[@]}
