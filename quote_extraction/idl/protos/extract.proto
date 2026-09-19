@@ -16,7 +16,7 @@ message Interval {
 
 message Extraction {
     string text = 1;
-    string class = 2;
+    string type = 2;
     Interval interval = 3;
 }
 
