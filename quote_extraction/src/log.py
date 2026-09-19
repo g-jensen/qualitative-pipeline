@@ -15,5 +15,5 @@ def init():
     else:
         kwargs["stream"] = stdout
     
-    logging.basicConfig(**kwargs)
+    logging.basicConfig(**kwargs, force=True)
     logger.info(f"Logging with level: {logging.getLevelName(level)}")

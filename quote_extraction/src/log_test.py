@@ -21,7 +21,7 @@ def test__init__default(mocker, caplog, monkeypatch):
     with tutil.log_capture(caplog):
         sut.init()
     
-    log_stub.assert_called_once_with(stream=stdout, level=logging.DEBUG)
+    log_stub.assert_called_once_with(stream=stdout, level=logging.DEBUG, force=True)
     
     assert_logged(caplog)
 
@@ -33,6 +33,6 @@ def test__init__production(mocker, caplog, monkeypatch):
     with tutil.log_capture(caplog):
         sut.init()
     
-    log_stub.assert_called_once_with(filename="log.txt", level=logging.DEBUG)
+    log_stub.assert_called_once_with(filename="log.txt", level=logging.DEBUG, force=True)
     
     assert_logged(caplog)
