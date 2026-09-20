@@ -20,14 +20,6 @@ source .venv/bin/activate
 ./scripts/generate_protos.sh
 ```
 
-### Rename the app
-
-```bash
-./scripts/rename.sh new-name
-```
-
-Note that this will only work once.
-
 ### Setup environment
 
 In `../.env` (`qualitative-pipeline/.env`) add your LLM api key:
