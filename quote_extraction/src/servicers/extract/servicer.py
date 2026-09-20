@@ -4,10 +4,11 @@ from protos import extract_pb2
 import re
 import os
 import json
+from collections.abc import Callable
+
 import langextract as lx
 from langextract import prompt_validation as pv
 from langextract.providers import router
-
 import langextract.providers.gemini
 import langextract.providers.openai
 from . import claude_provider
@@ -121,10 +122,25 @@ def read_env():
     return env
 
 
-# TODO - info logging, docker image
+def extract_document(request: extract_pb2.ExtractionRequest, env: dict[str,str]) -> lx.data.AnnotatedDocument:
+    return lx.extract(
+        config=lx.factory.ModelConfig(model_id=request.model),
+        examples=[EXAMPLE_INTERNAL_THINKING],
+        prompt_validation_level=pv.PromptValidationLevel.OFF,
+        prompt_description=prompt(request.topic),
+        text_or_documents=request.document,
+        api_key=api_key_from_model(request.model, env)
+    )
+
+
+# TODO - better info logging, docker image
 class ExtractServicer(extract_pb2_grpc.ExtractServicer):
-    def __init__(self):
-        self.env = read_env()        
+    def __init__(self, stub_fn: Callable[[extract_pb2.ExtractionRequest],lx.data.AnnotatedDocument]|None=None):
+        self.env = read_env()
+
+        self.is_stubbing = False if stub_fn is None else True
+        if self.is_stubbing:
+            self.stub_fn = stub_fn
     
     def Call(self, request: extract_pb2.ExtractionRequest, context: grpc.ServicerContext):
         logger.info(request)
@@ -132,14 +148,11 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
         if not is_valid_model(request.model):
             abort_invalid_model(request.model, context)
 
-        document: lx.data.AnnotatedDocument = lx.extract(
-            config=lx.factory.ModelConfig(model_id=request.model),
-            examples=[EXAMPLE_INTERNAL_THINKING],
-            prompt_validation_level=pv.PromptValidationLevel.OFF,
-            prompt_description=prompt(request.topic),
-            text_or_documents=request.document,
-            api_key=api_key_from_model(request.model, self.env)
-        )
+        document: lx.data.AnnotatedDocument
+        if self.is_stubbing:
+            document = self.stub_fn(request)
+        else:
+            document = extract_document(request, self.env)
 
         for extraction in document.extractions:
             yield extract_pb2.Extraction(

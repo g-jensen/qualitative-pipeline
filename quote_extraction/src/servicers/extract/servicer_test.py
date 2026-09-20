@@ -328,10 +328,22 @@ def request_log_message(request: extract_pb2.ExtractionRequest):
 def test__extract__logs_request(mocker: MockerFixture, grpc_stub, caplog):
     extract_mock = lx_extract_mock(mocker,BURGER_AND_CHICKEN_DOCUMENT)
 
-    _request = request()
+    req = request()
     with tutil.log_capture(caplog):
-        _responses = list(grpc_stub.Call(_request))
+        _responses = list(grpc_stub.Call(req))
 
     assert len(caplog.records) == 1
     assert caplog.records[0].levelname == "INFO"
-    assert caplog.records[0].message == request_log_message(_request)
+    assert caplog.records[0].message == request_log_message(req)
+
+
+def test__extract__stub_fn_is_called():
+    stub_fn = MagicMock(return_value=BURGERS_DOCUMENT)
+    servicer = sut.ExtractServicer(stub_fn=stub_fn)
+
+    req = request()
+    responses = list(servicer.Call(req, MagicMock()))
+
+    stub_fn.assert_called_once_with(req)
+    extraction = BURGERS_DOCUMENT.extractions[0]
+    assert responses == [grpc_extraction(extraction)]
