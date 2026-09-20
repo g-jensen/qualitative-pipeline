@@ -17,6 +17,7 @@ TEST_ANTHROPIC_API_KEY = "my-anthropic-api-key"
 
 from _pytest.monkeypatch import MonkeyPatch
 
+
 @pytest.fixture(scope="module")
 def monkeypatchmodule():
     mp = MonkeyPatch()
@@ -92,6 +93,14 @@ EXAMPLE_INTERNAL_THINKING = lx.data.AnnotatedDocument(
     ], 
     text="The chicken went great with the salad. I think salad goes well with hot foods."
 )
+
+
+def grpc_extraction(extraction: lx.data.AnnotatedDocument):
+    return extract_pb2.Extraction(
+        text=extraction.extraction_text,
+        type=extraction.extraction_class,
+        interval=extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
+    ) 
 
 
 def prompt(topic: str):
@@ -300,13 +309,7 @@ def test__extract__returns_extraction(mocker: MockerFixture, grpc_stub):
     responses = list(grpc_stub.Call(request()))
     
     extraction = BURGERS_DOCUMENT.extractions[0]
-    assert responses == [
-        extract_pb2.Extraction(
-            text=extraction.extraction_text,
-            type=extraction.extraction_class,
-            interval=extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
-        )
-    ]
+    assert responses == [grpc_extraction(extraction)]
  
 
 def test__extract__returns_multiple_extractions(mocker: MockerFixture, grpc_stub):
@@ -314,17 +317,5 @@ def test__extract__returns_multiple_extractions(mocker: MockerFixture, grpc_stub
 
     responses = list(grpc_stub.Call(request()))
     
-    extraction_0 = BURGER_AND_CHICKEN_DOCUMENT.extractions[0]
-    extraction_1 = BURGER_AND_CHICKEN_DOCUMENT.extractions[1]
-    assert responses == [
-        extract_pb2.Extraction(
-            text=extraction_0.extraction_text,
-            type=extraction_0.extraction_class,
-            interval=extract_pb2.Interval(start=extraction_0.char_interval.start_pos,end=extraction_0.char_interval.end_pos)
-        ),
-        extract_pb2.Extraction(
-            text=extraction_1.extraction_text,
-            type=extraction_1.extraction_class,
-            interval=extract_pb2.Interval(start=extraction_1.char_interval.start_pos,end=extraction_1.char_interval.end_pos)
-        )
-    ]
+    extraction_0, extraction_1 = BURGER_AND_CHICKEN_DOCUMENT.extractions
+    assert responses == [grpc_extraction(extraction_0), grpc_extraction(extraction_1)]
