@@ -58,37 +58,6 @@ def is_valid_model(model: str):
         return False
 
 
-def extraction_response(extraction: lx.data.Extraction):
-    return {
-        "text": extraction.extraction_text,
-        "class": extraction.extraction_class,
-        "interval": [extraction.char_interval.start_pos, extraction.char_interval.end_pos]
-    }
-
-
-def handle(event, context):
-    request: Request = TypeAdapter(Request).validate_json(event.body)
-
-    if not is_valid_model(request.model):
-        return {
-            "statusCode": 400,
-            "body": f"Unknown model: {request.model}"
-        }
-
-    document: lx.data.AnnotatedDocument = lx.extract(
-        config=lx.factory.ModelConfig(model_id=request.model),
-        examples=[example_internal_thinking],
-        prompt_validation_level=pv.PromptValidationLevel.OFF,
-        prompt_description=prompt(request.topic),
-        text_or_documents=request.document
-    )
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps(list(map(extraction_response, document.extractions)))
-    }
-
-
 def create_invalid_model_error_status(model):
     return status_pb2.Status(
         code=code_pb2.INVALID_ARGUMENT,
