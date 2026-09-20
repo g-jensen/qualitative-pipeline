@@ -15,6 +15,12 @@ from langextract.providers import router
 
 import os
 
+JSON_SCHEMA = """\
+{
+
+}
+"""
+
 @router.register(
     r"^claude",  # Matches any model_id starting with "claude"
     priority=10,
@@ -91,13 +97,13 @@ class ClaudeLanguageModel(base_model.BaseLanguageModel):
             system_message = ""
             if self.format_type == data.FormatType.JSON:
                 system_message = (
-                    "You are a helpful assistant that responds in JSON format. "
-                    "Wrap your JSON response in ```json and ``` code fences."
+                    f"You are a helpful assistant that responds in JSON format. "
+                    "Wrap your JSON response in ```json and ``` code fences. Your output MUST follow the same schema given to you as examples"
                 )
             elif self.format_type == data.FormatType.YAML:
                 system_message = (
                     "You are a helpful assistant that responds in YAML format. "
-                    "Wrap your YAML response in ```yaml and ``` code fences."
+                    "Wrap your YAML response in ```yaml and ``` code fences. Your output MUST follow the same schema given to you as examples"
                 )
 
             api_params = {
