@@ -15,14 +15,10 @@ from langextract.providers import router
 
 import os
 
-JSON_SCHEMA = """\
-{
-
-}
-"""
+CLAUDE_PATTERN = r"^claude" # Matches any model_id starting with "claude"
 
 @router.register(
-    r"^claude",  # Matches any model_id starting with "claude"
+    CLAUDE_PATTERN,  
     priority=10,
 )
 @dataclasses.dataclass(init=False)

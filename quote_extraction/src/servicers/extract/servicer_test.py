@@ -11,12 +11,29 @@ from langextract import prompt_validation as pv
 import langextract as lx
 
 
+TEST_GEMINI_API_KEY = "my-gemini-api-key"
+TEST_OPENAI_API_KEY = "my-openai-api-key"
+TEST_ANTHROPIC_API_KEY = "my-anthropic-api-key"
+
+from _pytest.monkeypatch import MonkeyPatch
+
+@pytest.fixture(scope="module")
+def monkeypatchmodule():
+    mp = MonkeyPatch()
+    yield mp
+    mp.undo()
+
+
 @pytest.fixture(scope="module")
 def grpc_add_to_server(): return extract_pb2_grpc.add_ExtractServicer_to_server
 
 
 @pytest.fixture(scope="module")
-def grpc_servicer(): return sut.ExtractServicer()
+def grpc_servicer(monkeypatchmodule):
+    monkeypatchmodule.setenv("GEMINI_API_KEY",TEST_GEMINI_API_KEY)        
+    monkeypatchmodule.setenv("OPENAI_API_KEY",TEST_OPENAI_API_KEY)        
+    monkeypatchmodule.setenv("ANTHROPIC_API_KEY",TEST_ANTHROPIC_API_KEY) 
+    return sut.ExtractServicer()
 
 
 @pytest.fixture(scope="module")
@@ -122,6 +139,12 @@ def assert_model(extract_mock: MagicMock, model: str):
     )
 
 
+def assert_api_key(extract_mock: MagicMock, api_key: str):
+    assert len(extract_mock.call_args_list) == 1
+    _, kwargs = extract_mock.call_args_list[0]
+    assert kwargs["api_key"] == api_key
+
+
 def test__extract__automatic_prompt_validation_off(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
@@ -181,12 +204,13 @@ def test__extract__examples(mocker: MockerFixture, grpc_stub):
 
 def test__extract__gemini_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
-    
+
     _responses = list(grpc_stub.Call(request(
         model="gemini-2.5-flash",
     )))
 
     assert_model(extract_mock, "gemini-2.5-flash")
+    assert_api_key(extract_mock, TEST_GEMINI_API_KEY)
 
 
 def test_forcing__extract__gemini_model(mocker: MockerFixture, grpc_stub):
@@ -197,6 +221,7 @@ def test_forcing__extract__gemini_model(mocker: MockerFixture, grpc_stub):
     )))
 
     assert_model(extract_mock, "gemini-3.8-flash")
+    assert_api_key(extract_mock, TEST_GEMINI_API_KEY)
 
 
 def test__extract__claude_model(mocker: MockerFixture, grpc_stub):
@@ -207,6 +232,7 @@ def test__extract__claude_model(mocker: MockerFixture, grpc_stub):
     )))
 
     assert_model(extract_mock, "claude-opus-4-8")
+    assert_api_key(extract_mock, TEST_ANTHROPIC_API_KEY)
 
 
 def test_forcing__extract__claude_model(mocker: MockerFixture, grpc_stub):
@@ -217,6 +243,7 @@ def test_forcing__extract__claude_model(mocker: MockerFixture, grpc_stub):
     )))
 
     assert_model(extract_mock, "claude-opus-5")
+    assert_api_key(extract_mock, TEST_ANTHROPIC_API_KEY)
 
 
 def test__extract__openai_model(mocker: MockerFixture, grpc_stub):
@@ -227,6 +254,7 @@ def test__extract__openai_model(mocker: MockerFixture, grpc_stub):
     )))
 
     assert_model(extract_mock, "gpt-4o-mini-2024-07-18")
+    assert_api_key(extract_mock, TEST_OPENAI_API_KEY)
 
 
 def test_forcing__extract__openai_model(mocker: MockerFixture, grpc_stub):
@@ -237,6 +265,7 @@ def test_forcing__extract__openai_model(mocker: MockerFixture, grpc_stub):
     )))
 
     assert_model(extract_mock, "gpt-4.1-2025-04-14")
+    assert_api_key(extract_mock, TEST_OPENAI_API_KEY)
 
 
 def test__extract__unknown_model(mocker: MockerFixture, grpc_stub):

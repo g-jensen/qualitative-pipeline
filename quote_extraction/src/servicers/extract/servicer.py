@@ -1,6 +1,8 @@
 from protos import extract_pb2_grpc
 from protos import extract_pb2
 
+import re
+import os
 import json
 import langextract as lx
 from langextract import prompt_validation as pv
@@ -17,6 +19,11 @@ from google.rpc import status_pb2
 import grpc
 from grpc_status import rpc_status
 
+
+GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
+OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
+ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
+ENVS = [GEMINI_API_KEY_ENV, OPENAI_API_KEY_ENV, ANTHROPIC_API_KEY_ENV]
 
 INNER_THINKING = "inner thinking"
 EMOTIONAL_REACTION = "emotional reaction"
@@ -60,20 +67,65 @@ def is_valid_model(model: str):
         return False
 
 
-def create_invalid_model_error_status(model):
+def invalid_model_error(model: str):
     return status_pb2.Status(
         code=code_pb2.INVALID_ARGUMENT,
         message=f"Invalid model: {model}",
     )
 
 
+def is_gemini_model(model: str):
+    for pattern in lx.providers.patterns.GEMINI_PATTERNS:
+        if re.match(pattern, model):
+            return True
+    return False
+
+
+def is_anthropic_model(model: str):
+    return re.match(claude_provider.CLAUDE_PATTERN, model)
+
+
+def is_openai_model(model: str):
+    for pattern in lx.providers.patterns.OPENAI_PATTERNS:
+        if re.match(pattern, model):
+            return True
+    return False
+
+
+MODEL_API_KEY_MAP = [
+    (is_gemini_model,    GEMINI_API_KEY_ENV   ),
+    (is_openai_model,    OPENAI_API_KEY_ENV   ),
+    (is_anthropic_model, ANTHROPIC_API_KEY_ENV),
+]
+
+
+def api_key_from_model(model: str, env: dict[str,str]):
+    api_key = None
+    for is_model, api_key_env in MODEL_API_KEY_MAP:
+        if is_model(model):
+            api_key = env[api_key_env]
+    return api_key
+
+
+def abort_invalid_model(model: str, context):
+    context.abort_with_status(rpc_status.to_status(invalid_model_error(model)))
+
+
+def read_env():
+    env = {}
+    for var in ENVS:
+        env[var] = os.environ.get(var)
+    return env
+
+
 class ExtractServicer(extract_pb2_grpc.ExtractServicer):
     def __init__(self):
+        self.env = read_env()        
         return
     
     def Call(self, request: extract_pb2.ExtractionRequest, context):
         if not is_valid_model(request.model):
-            context.abort_with_status(rpc_status.to_status(create_invalid_model_error_status(request.model)))
+            abort_invalid_model(request.model, context)
             return
 
         document: lx.data.AnnotatedDocument = lx.extract(
@@ -81,7 +133,8 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
             examples=[example_internal_thinking],
             prompt_validation_level=pv.PromptValidationLevel.OFF,
             prompt_description=prompt(request.topic),
-            text_or_documents=request.document
+            text_or_documents=request.document,
+            api_key=api_key_from_model(request.model, self.env)
         )
 
         for extraction in document.extractions:
