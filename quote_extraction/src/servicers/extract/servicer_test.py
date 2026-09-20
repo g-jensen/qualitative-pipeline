@@ -87,7 +87,7 @@ EXAMPLE_INTERNAL_THINKING = lx.data.AnnotatedDocument(
         lx.data.Extraction(
             extraction_class=INNER_THINKING, 
             extraction_text="I think salad goes well with hot foods.",
-            char_interval=lx.data.CharInterval(start_pos=39,end_pos=77)
+            char_interval=lx.data.CharInterval(start_pos=39,end_pos=78)
         )
     ], 
     text="The chicken went great with the salad. I think salad goes well with hot foods."

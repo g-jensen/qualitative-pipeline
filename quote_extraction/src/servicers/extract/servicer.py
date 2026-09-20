@@ -46,12 +46,12 @@ The point is to extract quotes relevant to answer the topic: \"{topic}\"
 
 
 # TODO - load pre-compiled examples in from disk for tests and src. For now, these can be stored in the Docker image itself. Later, create an 'example store' service.
-example_internal_thinking = lx.data.AnnotatedDocument(
+EXAMPLE_INTERNAL_THINKING = lx.data.AnnotatedDocument(
     extractions=[
         lx.data.Extraction(
             extraction_class=INNER_THINKING, 
             extraction_text="I think salad goes well with hot foods.",
-            char_interval=lx.data.CharInterval(start_pos=39,end_pos=77)
+            char_interval=lx.data.CharInterval(start_pos=39,end_pos=78)
         )
     ], 
     text="The chicken went great with the salad. I think salad goes well with hot foods."
@@ -129,7 +129,7 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
 
         document: lx.data.AnnotatedDocument = lx.extract(
             config=lx.factory.ModelConfig(model_id=request.model),
-            examples=[example_internal_thinking],
+            examples=[EXAMPLE_INTERNAL_THINKING],
             prompt_validation_level=pv.PromptValidationLevel.OFF,
             prompt_description=prompt(request.topic),
             text_or_documents=request.document,
