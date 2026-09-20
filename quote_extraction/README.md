@@ -32,8 +32,9 @@ Note that this will only work once.
 
 In `../.env` (`qualitative-pipeline/.env`) add your LLM api key:
 ```
-LANGEXTRACT_API_KEY=<YOUR_LLM_API_KEY>
+<PROVIDER>_API_KEY=<YOUR_LLM_API_KEY>
 ```
+The `<PROVIDER>` options are `GEMINI`, `OPENAI`, and `ANTHROPIC`
 
 ### Run the server with environment
 
