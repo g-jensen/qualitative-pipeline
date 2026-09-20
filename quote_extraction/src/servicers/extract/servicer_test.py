@@ -233,6 +233,26 @@ def test_forcing__handle__claude_model(mocker: MockerFixture, grpc_stub):
     assert_model(extract_mock, "claude-opus-5")
 
 
+def test__handle__openai_model(mocker: MockerFixture, grpc_stub):
+    extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
+    
+    _responses = list(grpc_stub.Call(request(
+        model="gpt-4o-mini-2024-07-18",
+    )))
+
+    assert_model(extract_mock, "gpt-4o-mini-2024-07-18")
+
+
+def test_forcing__handle__openai_model(mocker: MockerFixture, grpc_stub):
+    extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
+    
+    _responses = list(grpc_stub.Call(request(
+        model="gpt-4.1-2025-04-14",
+    )))
+
+    assert_model(extract_mock, "gpt-4.1-2025-04-14")
+
+
 def test__extract__unknown_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
 

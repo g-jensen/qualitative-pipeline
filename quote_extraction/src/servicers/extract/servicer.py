@@ -1,12 +1,14 @@
 from protos import extract_pb2_grpc
 from protos import extract_pb2
 
+import json
 import langextract as lx
 from langextract import prompt_validation as pv
 from langextract.providers import router
+
 import langextract.providers.gemini
+import langextract.providers.openai
 from . import claude_provider
-import json
 
 from google.protobuf import any_pb2
 from google.rpc import code_pb2
