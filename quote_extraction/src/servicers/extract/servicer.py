@@ -12,10 +12,9 @@ import langextract.providers.gemini
 import langextract.providers.openai
 from . import claude_provider
 
-from google.protobuf import any_pb2
 from google.rpc import code_pb2
-from google.rpc import error_details_pb2
 from google.rpc import status_pb2
+
 import grpc
 from grpc_status import rpc_status
 
@@ -74,11 +73,15 @@ def invalid_model_error(model: str):
     )
 
 
-def is_gemini_model(model: str):
-    for pattern in lx.providers.patterns.GEMINI_PATTERNS:
-        if re.match(pattern, model):
+def matches_patterns(s: str, patterns):
+    for pattern in patterns:
+        if re.match(pattern, s):
             return True
     return False
+
+
+def is_gemini_model(model: str):
+    return matches_patterns(model, lx.providers.patterns.GEMINI_PATTERNS)
 
 
 def is_anthropic_model(model: str):
@@ -86,10 +89,7 @@ def is_anthropic_model(model: str):
 
 
 def is_openai_model(model: str):
-    for pattern in lx.providers.patterns.OPENAI_PATTERNS:
-        if re.match(pattern, model):
-            return True
-    return False
+    return matches_patterns(model, lx.providers.patterns.OPENAI_PATTERNS)
 
 
 MODEL_API_KEY_MAP = [
@@ -118,15 +118,14 @@ def read_env():
     return env
 
 
+# TODO - info logging, docker image
 class ExtractServicer(extract_pb2_grpc.ExtractServicer):
     def __init__(self):
         self.env = read_env()        
-        return
     
     def Call(self, request: extract_pb2.ExtractionRequest, context):
         if not is_valid_model(request.model):
             abort_invalid_model(request.model, context)
-            return
 
         document: lx.data.AnnotatedDocument = lx.extract(
             config=lx.factory.ModelConfig(model_id=request.model),
