@@ -6,7 +6,6 @@ from unittest.mock import MagicMock
 from pytest_mock import MockerFixture
 from . import registrar_test
 import logging
-from .servicers.echo import EchoServicer
 from typing import Sequence
 
 

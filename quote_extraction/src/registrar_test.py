@@ -1,4 +1,3 @@
-from .servicers.echo import EchoServicer
 from .servicers.extract import ExtractServicer
 
 from . import registrar as sut
@@ -11,7 +10,6 @@ from typing import Sequence
 
 def stub_services_to_register(mocker: MockerFixture):
     return [
-        (mocker.patch("protos.echo_pb2_grpc.add_EchoServicer_to_server"), EchoServicer),
         (mocker.patch("protos.extract_pb2_grpc.add_ExtractServicer_to_server"), ExtractServicer)
     ]
 
