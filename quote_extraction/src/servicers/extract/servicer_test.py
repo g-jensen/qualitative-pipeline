@@ -122,21 +122,7 @@ def assert_model(extract_mock: MagicMock, model: str):
     )
 
 
-# def test__call(grpc_stub):
-#     request = extract_pb2.ExtractionRequest()
-#     responses = list(grpc_stub.Call(request))
-
-
-# def test__handle__malformed_request(mocker: MockerFixture, grpc_stub):
-#     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
-    
-#     request = extract_pb2.ExtractionRequest(topic=None,document=None,model=None)
-#     _responses = list(grpc_stub.Call(request))
-    
-#     assert len(extract_mock.call_args_list) == 0
-
-
-def test__handle__automatic_prompt_validation_off(mocker: MockerFixture, grpc_stub):
+def test__extract__automatic_prompt_validation_off(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request()))
@@ -144,7 +130,7 @@ def test__handle__automatic_prompt_validation_off(mocker: MockerFixture, grpc_st
     assert_prompt_validation(extract_mock, pv.PromptValidationLevel.OFF)
 
 
-def test__handle__document_content(mocker: MockerFixture, grpc_stub):
+def test__extract__document_content(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
 
     _responses = list(grpc_stub.Call(request(
@@ -154,7 +140,7 @@ def test__handle__document_content(mocker: MockerFixture, grpc_stub):
     assert_document_content(extract_mock, "I like chicken. I like burgers.")
 
 
-def test_forcing__handle__document_content(mocker: MockerFixture, grpc_stub):
+def test_forcing__extract__document_content(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
 
     _responses = list(grpc_stub.Call(request(
@@ -164,7 +150,7 @@ def test_forcing__handle__document_content(mocker: MockerFixture, grpc_stub):
     assert_document_content(extract_mock, "I hate chicken. I hate burgers.")
 
 
-def test__handle__prompt(mocker: MockerFixture, grpc_stub):
+def test__extract__prompt(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -174,7 +160,7 @@ def test__handle__prompt(mocker: MockerFixture, grpc_stub):
     assert_prompt(extract_mock, prompt("Burgers"))
 
 
-def test_forcing__handle__prompt(mocker: MockerFixture, grpc_stub):
+def test_forcing__extract__prompt(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -184,7 +170,7 @@ def test_forcing__handle__prompt(mocker: MockerFixture, grpc_stub):
     assert_prompt(extract_mock, prompt("Chicken"))
 
 
-def test__handle__examples(mocker: MockerFixture, grpc_stub):
+def test__extract__examples(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request()))
@@ -193,7 +179,7 @@ def test__handle__examples(mocker: MockerFixture, grpc_stub):
     assert kwargs["examples"] == [EXAMPLE_INTERNAL_THINKING]
 
 
-def test__handle__gemini_model(mocker: MockerFixture, grpc_stub):
+def test__extract__gemini_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -203,7 +189,7 @@ def test__handle__gemini_model(mocker: MockerFixture, grpc_stub):
     assert_model(extract_mock, "gemini-2.5-flash")
 
 
-def test_forcing__handle__gemini_model(mocker: MockerFixture, grpc_stub):
+def test_forcing__extract__gemini_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -213,7 +199,7 @@ def test_forcing__handle__gemini_model(mocker: MockerFixture, grpc_stub):
     assert_model(extract_mock, "gemini-3.8-flash")
 
 
-def test__handle__claude_model(mocker: MockerFixture, grpc_stub):
+def test__extract__claude_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -223,7 +209,7 @@ def test__handle__claude_model(mocker: MockerFixture, grpc_stub):
     assert_model(extract_mock, "claude-opus-4-8")
 
 
-def test_forcing__handle__claude_model(mocker: MockerFixture, grpc_stub):
+def test_forcing__extract__claude_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -233,7 +219,7 @@ def test_forcing__handle__claude_model(mocker: MockerFixture, grpc_stub):
     assert_model(extract_mock, "claude-opus-5")
 
 
-def test__handle__openai_model(mocker: MockerFixture, grpc_stub):
+def test__extract__openai_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -243,7 +229,7 @@ def test__handle__openai_model(mocker: MockerFixture, grpc_stub):
     assert_model(extract_mock, "gpt-4o-mini-2024-07-18")
 
 
-def test_forcing__handle__openai_model(mocker: MockerFixture, grpc_stub):
+def test_forcing__extract__openai_model(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
     
     _responses = list(grpc_stub.Call(request(
@@ -279,7 +265,7 @@ def test_forcing__extract__unknown_model(mocker: MockerFixture, grpc_stub):
     assert len(extract_mock.call_args_list) == 0
 
 
-def test__handle__returns_extraction(mocker: MockerFixture, grpc_stub):
+def test__extract__returns_extraction(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT)
 
     responses = list(grpc_stub.Call(request()))
@@ -294,7 +280,7 @@ def test__handle__returns_extraction(mocker: MockerFixture, grpc_stub):
     ]
  
 
-def test__handle__returns_multiple_extractions(mocker: MockerFixture, grpc_stub):
+def test__extract__returns_multiple_extractions(mocker: MockerFixture, grpc_stub):
     extract_mock = lx_extract_mock(mocker,BURGER_AND_CHICKEN_DOCUMENT)
 
     responses = list(grpc_stub.Call(request()))
