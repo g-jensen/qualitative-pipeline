@@ -18,6 +18,9 @@ from google.rpc import status_pb2
 import grpc
 from grpc_status import rpc_status
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
@@ -123,7 +126,9 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
     def __init__(self):
         self.env = read_env()        
     
-    def Call(self, request: extract_pb2.ExtractionRequest, context):
+    def Call(self, request: extract_pb2.ExtractionRequest, context: grpc.ServicerContext):
+        logger.info(request)
+
         if not is_valid_model(request.model):
             abort_invalid_model(request.model, context)
 

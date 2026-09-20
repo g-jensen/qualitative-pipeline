@@ -1,5 +1,7 @@
+import src.test_util as tutil
 from . import servicer as sut
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
@@ -14,8 +16,6 @@ import langextract as lx
 TEST_GEMINI_API_KEY = "my-gemini-api-key"
 TEST_OPENAI_API_KEY = "my-openai-api-key"
 TEST_ANTHROPIC_API_KEY = "my-anthropic-api-key"
-
-from _pytest.monkeypatch import MonkeyPatch
 
 
 @pytest.fixture(scope="module")
@@ -319,3 +319,19 @@ def test__extract__returns_multiple_extractions(mocker: MockerFixture, grpc_stub
     
     extraction_0, extraction_1 = BURGER_AND_CHICKEN_DOCUMENT.extractions
     assert responses == [grpc_extraction(extraction_0), grpc_extraction(extraction_1)]
+
+
+def request_log_message(request: extract_pb2.ExtractionRequest):
+    return f'topic: "{request.topic}"\ndocument: "{request.document}"\nmodel: "{request.model}"\n'
+
+
+def test__extract__logs_request(mocker: MockerFixture, grpc_stub, caplog):
+    extract_mock = lx_extract_mock(mocker,BURGER_AND_CHICKEN_DOCUMENT)
+
+    _request = request()
+    with tutil.log_capture(caplog):
+        _responses = list(grpc_stub.Call(_request))
+
+    assert len(caplog.records) == 1
+    assert caplog.records[0].levelname == "INFO"
+    assert caplog.records[0].message == request_log_message(_request)
