@@ -60,7 +60,7 @@ BURGERS_DOCUMENT = lx.data.AnnotatedDocument(
         lx.data.Extraction(
             extraction_text="I like burgers.",
             extraction_class=PERSONAL_RULE,
-            char_interval=lx.data.CharInterval(start_pos=16,end_pos=30)
+            char_interval=lx.data.CharInterval(start_pos=16,end_pos=31)
         )
     ]
 )
@@ -77,7 +77,7 @@ BURGER_AND_CHICKEN_DOCUMENT = lx.data.AnnotatedDocument(
         lx.data.Extraction(
             extraction_text="I like burgers.",
             extraction_class=PERSONAL_RULE,
-            char_interval=lx.data.CharInterval(start_pos=16,end_pos=30)
+            char_interval=lx.data.CharInterval(start_pos=16,end_pos=31)
         )
     ]
 )
