@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def load_extraction_servicer():
-    log_message = f"Loading {extract.__name__} servicer"
+    log_message = f"Loading {extract.__name__}"
     if os.environ.get("RUN_MODE") == "test":
         logger.info(f"{log_message} (TEST MODE)")
         return extract.ExtractServicer(stub_fn=stub.stub_fn)
