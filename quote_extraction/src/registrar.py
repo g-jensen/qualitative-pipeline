@@ -1,13 +1,23 @@
 from protos import extract_pb2_grpc
-from .servicers.extract import ExtractServicer
+from .servicers import extract
 
 import grpc
 from typing import Callable
 
+from . import stub
+
+import os
+
+def extraction_servicer():
+    if os.environ.get("RUN_MODE") == "test":
+        return extract.ExtractServicer(stub_fn=stub.stub_fn)
+    else:
+        return extract.ExtractServicer()
+
 
 def services_to_register():
     return [
-        (extract_pb2_grpc.add_ExtractServicer_to_server, ExtractServicer()),
+        (extract_pb2_grpc.add_ExtractServicer_to_server, extraction_servicer()),
     ]
 
 
