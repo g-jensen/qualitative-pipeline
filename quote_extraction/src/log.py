@@ -17,3 +17,14 @@ def init():
     
     logging.basicConfig(**kwargs, force=True)
     logger.info(f"Logging with level: {logging.getLevelName(level)}")
+
+
+import grpc
+
+class LogInterceptor(grpc.ServerInterceptor):
+    def __init__(self):
+        return
+
+    def intercept_service(self, continuation, handler_call_details):
+        logger.info("intercepting...")
+        return continuation(handler_call_details)

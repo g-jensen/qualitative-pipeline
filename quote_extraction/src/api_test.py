@@ -19,12 +19,6 @@ def patch_grpc_server(mocker: MockerFixture):
     return (stub, server)
 
 
-def assert_logged(caplog: pytest.LogCaptureFixture, levelname: str, message: str):
-    assert len(caplog.records) == 1
-    assert caplog.records[0].levelname == levelname
-    assert caplog.records[0].message == message
-
-
 def _assert_serves(
     grpc_stub: MagicMock, server_stub: grpc.Server, caplog: pytest.LogCaptureFixture,
     port: int, max_num_workers: int
@@ -35,7 +29,8 @@ def _assert_serves(
     server_stub.start.assert_called_once()
     server_stub.wait_for_termination.assert_called_once()
     
-    assert_logged(caplog, "INFO", f"Serving at http://127.0.0.1:{port}")
+    records = tutil.list_logs_by_name(caplog,sut.__name__)
+    tutil.assert_logged(records, "INFO", f"Serving at http://127.0.0.1:{port}")
 
 
 def setup_state(mocker, caplog):

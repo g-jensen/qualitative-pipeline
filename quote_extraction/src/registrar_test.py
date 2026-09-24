@@ -1,6 +1,7 @@
 from .servicers import extract
 
 from . import registrar as sut
+from . import test_util as tutil
 import grpc
 import pytest
 from unittest.mock import MagicMock
@@ -62,17 +63,27 @@ class RegistrationTests():
             service.__exit__(exc_type, exc_val, exc_tb)
 
 
-def test__extract_service_default_mode(mocker, monkeypatch):
+
+
+def test__extract_service_default_mode(mocker, monkeypatch, caplog):
     monkeypatch.setenv("RUN_MODE", "")
     mock_server = mocker.MagicMock(spec=grpc.Server)
     
     with ExtractionRegistrationTest(mocker, mock_server):
-        sut.register_services(sut.services_to_register(), mock_server)
+        with tutil.log_capture(caplog):
+            sut.register_services(sut.services_to_register(), mock_server)
+
+    records = tutil.list_logs_by_name(caplog,sut.__name__)
+    tutil.assert_logged(records,"INFO",f"Loading {extract.__name__} servicer")
 
 
-def test__extract_service_test_mode(mocker, monkeypatch):
+def test__extract_service_test_mode(mocker, monkeypatch, caplog):
     monkeypatch.setenv("RUN_MODE", "test")
     mock_server = mocker.MagicMock(spec=grpc.Server)
 
     with ExtractionRegistrationTest(mocker, mock_server):
-        sut.register_services(sut.services_to_register(), mock_server)
+        with tutil.log_capture(caplog):
+            sut.register_services(sut.services_to_register(), mock_server)
+    
+    records = tutil.list_logs_by_name(caplog,sut.__name__)
+    tutil.assert_logged(records,"INFO",f"Loading {extract.__name__} servicer (TEST MODE)")

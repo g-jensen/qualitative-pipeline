@@ -8,16 +8,23 @@ from . import stub
 
 import os
 
-def extraction_servicer():
+import logging
+
+logger = logging.getLogger(__name__)
+
+def load_extraction_servicer():
+    log_message = f"Loading {extract.__name__} servicer"
     if os.environ.get("RUN_MODE") == "test":
+        logger.info(f"{log_message} (TEST MODE)")
         return extract.ExtractServicer(stub_fn=stub.stub_fn)
     else:
+        logger.info(log_message)
         return extract.ExtractServicer()
 
 
 def services_to_register():
     return [
-        (extract_pb2_grpc.add_ExtractServicer_to_server, extraction_servicer()),
+        (extract_pb2_grpc.add_ExtractServicer_to_server, load_extraction_servicer()),
     ]
 
 
