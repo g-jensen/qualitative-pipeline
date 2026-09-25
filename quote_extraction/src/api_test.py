@@ -7,6 +7,8 @@ from pytest_mock import MockerFixture
 from . import registrar_test
 import logging
 from typing import Sequence
+from concurrent import futures
+from . import log
 
 
 def server_mock(mocker: MockerFixture):
@@ -15,15 +17,23 @@ def server_mock(mocker: MockerFixture):
 
 def patch_grpc_server(mocker: MockerFixture):
     server = server_mock(mocker)
-    stub = mocker.patch("src.api.create_grpc_server", return_value=server)
+    stub = mocker.patch("grpc.server", return_value=server)
     return (stub, server)
+
+
+def assert_grpc_call(grpc_stub: MagicMock, max_num_workers: int):
+    assert len(grpc_stub.call_args_list) == 1
+    args = grpc_stub.call_args_list[0].kwargs
+    assert args["thread_pool"]._max_workers == max_num_workers
+    (log_interceptor,) = args["interceptors"]
+    assert isinstance(log_interceptor, log.LogInterceptor)
 
 
 def _assert_serves(
     grpc_stub: MagicMock, server_stub: grpc.Server, caplog: pytest.LogCaptureFixture,
     port: int, max_num_workers: int
 ):
-    grpc_stub.assert_called_once_with(max_num_workers)
+    assert_grpc_call(grpc_stub, max_num_workers)
 
     server_stub.add_insecure_port.assert_called_once_with(f"127.0.0.1:{port}")
     server_stub.start.assert_called_once()

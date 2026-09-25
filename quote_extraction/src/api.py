@@ -3,13 +3,17 @@ from concurrent import futures
 from . import registrar
 import grpc
 import logging
+from . import log
 
 
 logger = logging.getLogger(__name__)
 
 
 def create_grpc_server(max_num_workers: int):
-    return grpc.server(futures.ThreadPoolExecutor(max_workers=max_num_workers))
+    return grpc.server(
+        thread_pool=futures.ThreadPoolExecutor(max_workers=max_num_workers),
+        interceptors=(log.LogInterceptor(),)
+    )
 
 
 def serve(port: int, max_num_workers: int) -> grpc.Server:
