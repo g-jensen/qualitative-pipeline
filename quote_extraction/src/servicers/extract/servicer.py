@@ -19,9 +19,6 @@ from google.rpc import status_pb2
 import grpc
 from grpc_status import rpc_status
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
@@ -133,7 +130,7 @@ def extract_document(request: extract_pb2.ExtractionRequest, env: dict[str,str])
     )
 
 
-# TODO - better info logging, docker image
+# TODO - docker image
 class ExtractServicer(extract_pb2_grpc.ExtractServicer):
     def __init__(self, stub_fn: Callable[[extract_pb2.ExtractionRequest],lx.data.AnnotatedDocument]|None=None):
         self.env = read_env()
@@ -143,8 +140,6 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
             self.stub_fn = stub_fn
     
     def Call(self, request: extract_pb2.ExtractionRequest, context: grpc.ServicerContext):
-        logger.info(request)
-
         if not is_valid_model(request.model):
             abort_invalid_model(request.model, context)
 
