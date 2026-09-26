@@ -4,6 +4,7 @@ from protos import extract_pb2
 import re
 import os
 import json
+import logging
 from collections.abc import Callable
 
 import langextract as lx
@@ -20,6 +21,8 @@ from google.rpc import status_pb2
 import grpc
 from grpc_status import rpc_status
 
+
+logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
 OPENAI_API_KEY_ENV = "OPENAI_API_KEY"
@@ -143,7 +146,9 @@ def abort_invalid_model(model: str, context):
 def read_env():
     env = {}
     for var in ENVS:
-        env[var] = os.environ.get(var)
+        value = os.environ.get(var)
+        if value is not None:
+            env[var] = value
     return env
 
 
@@ -173,16 +178,25 @@ def grpc_extraction(extraction: lx.data.Extraction):
     )
 
 
+def log_loaded_env(env: dict[str,str]):
+    keys = env.keys()
+    if len(keys) == 0:
+        logger.warning("No environment vars loaded! LLM calls may be authenticated incorrectly")
+    else:
+        logger.info(f"Loaded environment vars: {", ".join(keys)}")
+
+
 # TODO - docker image
 class ExtractServicer(extract_pb2_grpc.ExtractServicer):
     def __init__(self, stub_fn: Callable[[extract_pb2.ExtractionRequest],lx.data.AnnotatedDocument]|None=None):
         self.env = read_env()
+        log_loaded_env(self.env)
 
         self.is_stubbing = False if stub_fn is None else True
         if self.is_stubbing:
             self.stub_fn = stub_fn
 
-        self.examples = load_examples() # not tested
+        self.examples = load_examples()
     
     def Call(self, request: extract_pb2.ExtractionRequest, context: grpc.ServicerContext):
         if not is_valid_model(request.model):

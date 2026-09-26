@@ -6,6 +6,7 @@ from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
 import json
+import logging
 from pathlib import Path
 from protos import extract_pb2
 from protos import extract_pb2_grpc
@@ -18,6 +19,12 @@ import langextract as lx
 TEST_GEMINI_API_KEY = "my-gemini-api-key"
 TEST_OPENAI_API_KEY = "my-openai-api-key"
 TEST_ANTHROPIC_API_KEY = "my-anthropic-api-key"
+
+TEST_ENV = {
+    "GEMINI_API_KEY": TEST_GEMINI_API_KEY,
+    "OPENAI_API_KEY": TEST_OPENAI_API_KEY,
+    "ANTHROPIC_API_KEY": TEST_ANTHROPIC_API_KEY,
+}
 
 
 @pytest.fixture(scope="module")
@@ -33,9 +40,8 @@ def grpc_add_to_server(): return extract_pb2_grpc.add_ExtractServicer_to_server
 
 @pytest.fixture(scope="module")
 def grpc_servicer(monkeypatchmodule):
-    monkeypatchmodule.setenv("GEMINI_API_KEY",TEST_GEMINI_API_KEY)        
-    monkeypatchmodule.setenv("OPENAI_API_KEY",TEST_OPENAI_API_KEY)        
-    monkeypatchmodule.setenv("ANTHROPIC_API_KEY",TEST_ANTHROPIC_API_KEY) 
+    for env, var in TEST_ENV.items():
+        monkeypatchmodule.setenv(env,var)        
     return sut.ExtractServicer()
 
 
@@ -200,6 +206,12 @@ def assert_api_key(extract_mock: MagicMock, api_key: str):
     assert kwargs["api_key"] == api_key
 
 
+def assert_logged_vars(records: list[logging.LogRecord], expected_keys: list[str]):
+    assert len(records) == 1
+    assert records[0].levelname == "INFO"
+    assert records[0].message == f"Loaded environment vars: {", ".join(expected_keys)}"
+
+
 def request_log_message(request: extract_pb2.ExtractionRequest):
     return f'topic: "{request.topic}"\ndocument: "{request.document}"\nmodel: "{request.model}"\n'
 
@@ -345,6 +357,39 @@ def test_forcing__extract__unknown_model(mocker: MockerFixture, grpc_stub):
     assert 'status = StatusCode.INVALID_ARGUMENT' in str(excinfo.value)
     assert 'details = "Invalid model: another-unknown-model"' in str(excinfo.value)
     assert len(extract_mock.call_args_list) == 0
+
+
+def test__extract__logs_env(mocker: MockerFixture, monkeypatch, caplog):
+    lx_extract_mock(mocker, None)
+    
+    with tutil.log_capture(caplog):
+        servicer = sut.ExtractServicer()
+
+    assert_logged_vars(caplog.records, TEST_ENV.keys())
+
+
+def test_forcing__extract__logs_env(mocker: MockerFixture, monkeypatch, caplog):
+    lx_extract_mock(mocker, None)
+    keys = list(TEST_ENV.keys())
+    monkeypatch.delenv(keys[0])
+    
+    with tutil.log_capture(caplog):
+        servicer = sut.ExtractServicer()
+
+    assert_logged_vars(caplog.records, keys[1:])
+
+
+def test____extract__logs_empty_env(mocker: MockerFixture, monkeypatch, caplog):
+    lx_extract_mock(mocker, None)
+    for key in TEST_ENV.keys():
+        monkeypatch.delenv(key)
+        
+    with tutil.log_capture(caplog):
+        servicer = sut.ExtractServicer()
+
+    assert len(caplog.records) == 1
+    assert caplog.records[0].levelname == "WARNING"
+    assert caplog.records[0].message == f"No environment vars loaded! LLM calls may be authenticated incorrectly"
 
 
 def test__extract__returns_extraction(mocker: MockerFixture, grpc_stub):
