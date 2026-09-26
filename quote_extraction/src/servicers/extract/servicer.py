@@ -101,11 +101,10 @@ MODEL_API_KEY_MAP = [
 
 
 def api_key_from_model(model: str, env: dict[str,str]):
-    api_key = None
     for is_model, api_key_env in MODEL_API_KEY_MAP:
         if is_model(model):
-            api_key = env[api_key_env]
-    return api_key
+            return env[api_key_env]
+    return None
 
 
 def abort_invalid_model(model: str, context):
@@ -121,12 +120,15 @@ def read_env():
 
 def extract_document(request: extract_pb2.ExtractionRequest, env: dict[str,str]) -> lx.data.AnnotatedDocument:
     return lx.extract(
-        config=lx.factory.ModelConfig(model_id=request.model),
+        config=lx.factory.ModelConfig(
+            model_id=request.model, 
+            provider_kwargs={"api_key": api_key_from_model(request.model, env)}
+        ),
         examples=[EXAMPLE_INTERNAL_THINKING],
         prompt_validation_level=pv.PromptValidationLevel.OFF,
         prompt_description=prompt(request.topic),
         text_or_documents=request.document,
-        api_key=api_key_from_model(request.model, env)
+        # api_key=api_key_from_model(request.model, env) # maybe needed for providers other than Anthropic?
     )
 
 

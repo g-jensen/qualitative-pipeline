@@ -140,11 +140,12 @@ def assert_prompt(extract_mock: MagicMock, prompt):
     assert kwargs["prompt_description"] == prompt
 
 
-def assert_model(extract_mock: MagicMock, model: str):
+def assert_model(extract_mock: MagicMock, model: str, api_key: str):
     assert len(extract_mock.call_args_list) == 1
     _, kwargs = extract_mock.call_args_list[0]
     assert kwargs["config"] == lx.factory.ModelConfig(
-        model_id=model
+        model_id=model,
+        provider_kwargs={"api_key": api_key},
     )
 
 
@@ -218,8 +219,7 @@ def test__extract__gemini_model(mocker: MockerFixture, grpc_stub):
         model="gemini-2.5-flash",
     )))
 
-    assert_model(extract_mock, "gemini-2.5-flash")
-    assert_api_key(extract_mock, TEST_GEMINI_API_KEY)
+    assert_model(extract_mock, "gemini-2.5-flash", TEST_GEMINI_API_KEY)
 
 
 def test_forcing__extract__gemini_model(mocker: MockerFixture, grpc_stub):
@@ -229,8 +229,7 @@ def test_forcing__extract__gemini_model(mocker: MockerFixture, grpc_stub):
         model="gemini-3.8-flash",
     )))
 
-    assert_model(extract_mock, "gemini-3.8-flash")
-    assert_api_key(extract_mock, TEST_GEMINI_API_KEY)
+    assert_model(extract_mock, "gemini-3.8-flash", TEST_GEMINI_API_KEY)
 
 
 def test__extract__claude_model(mocker: MockerFixture, grpc_stub):
@@ -240,8 +239,7 @@ def test__extract__claude_model(mocker: MockerFixture, grpc_stub):
         model="claude-opus-4-8",
     )))
 
-    assert_model(extract_mock, "claude-opus-4-8")
-    assert_api_key(extract_mock, TEST_ANTHROPIC_API_KEY)
+    assert_model(extract_mock, "claude-opus-4-8", TEST_ANTHROPIC_API_KEY)
 
 
 def test_forcing__extract__claude_model(mocker: MockerFixture, grpc_stub):
@@ -251,8 +249,7 @@ def test_forcing__extract__claude_model(mocker: MockerFixture, grpc_stub):
         model="claude-opus-5",
     )))
 
-    assert_model(extract_mock, "claude-opus-5")
-    assert_api_key(extract_mock, TEST_ANTHROPIC_API_KEY)
+    assert_model(extract_mock, "claude-opus-5", TEST_ANTHROPIC_API_KEY)
 
 
 def test__extract__openai_model(mocker: MockerFixture, grpc_stub):
@@ -262,8 +259,7 @@ def test__extract__openai_model(mocker: MockerFixture, grpc_stub):
         model="gpt-4o-mini-2024-07-18",
     )))
 
-    assert_model(extract_mock, "gpt-4o-mini-2024-07-18")
-    assert_api_key(extract_mock, TEST_OPENAI_API_KEY)
+    assert_model(extract_mock, "gpt-4o-mini-2024-07-18", TEST_OPENAI_API_KEY)
 
 
 def test_forcing__extract__openai_model(mocker: MockerFixture, grpc_stub):
@@ -273,8 +269,7 @@ def test_forcing__extract__openai_model(mocker: MockerFixture, grpc_stub):
         model="gpt-4.1-2025-04-14",
     )))
 
-    assert_model(extract_mock, "gpt-4.1-2025-04-14")
-    assert_api_key(extract_mock, TEST_OPENAI_API_KEY)
+    assert_model(extract_mock, "gpt-4.1-2025-04-14", TEST_OPENAI_API_KEY)
 
 
 def test__extract__unknown_model(mocker: MockerFixture, grpc_stub):
