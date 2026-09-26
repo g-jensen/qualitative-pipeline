@@ -86,6 +86,7 @@ def example_from_json(json_example):
     )
 
 
+# TODO - extract to separate module
 def load_examples():
     json_examples = json.loads(Path("examples.json").read_text())
     return list(map(example_from_json,json_examples))
