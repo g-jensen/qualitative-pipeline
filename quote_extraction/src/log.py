@@ -12,16 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 def init():
-    level = logging.DEBUG
-    kwargs = {"level": level}
+    kwargs = {}
     
     if env.in_production():
+        kwargs["level"] = logging.INFO
         kwargs["filename"] = "log.txt"
     else:
+        kwargs["level"] = logging.DEBUG
         kwargs["stream"] = stdout
     
     logging.basicConfig(**kwargs, force=True)
-    logger.info(f"Logging with level: {logging.getLevelName(level)}")
+    logger.info(f"Logging with level: {logging.getLevelName(kwargs["level"])}")
 
 
 def log_message(message, key: str, uuid: str):
