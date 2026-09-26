@@ -38,7 +38,7 @@ def test__init__production(mocker, caplog, monkeypatch):
     with tutil.log_capture(caplog):
         sut.init()
     
-    log_stub.assert_called_once_with(filename="log.txt", level=logging.INFO, force=True)
+    log_stub.assert_called_once_with(stream=stdout, level=logging.INFO, force=True)
     
     assert_logged(caplog, "INFO")
 
