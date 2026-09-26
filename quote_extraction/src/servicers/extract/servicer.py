@@ -132,6 +132,18 @@ def extract_document(request: extract_pb2.ExtractionRequest, env: dict[str,str])
     )
 
 
+def grpc_extraction(extraction: lx.data.Extraction):
+    interval = None
+    if extraction.char_interval is not None:
+        interval = extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
+        
+    return extract_pb2.Extraction(
+        text=extraction.extraction_text,
+        type=extraction.extraction_class,
+        interval=interval
+    )
+
+
 # TODO - docker image
 class ExtractServicer(extract_pb2_grpc.ExtractServicer):
     def __init__(self, stub_fn: Callable[[extract_pb2.ExtractionRequest],lx.data.AnnotatedDocument]|None=None):
@@ -152,8 +164,9 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
             document = extract_document(request, self.env)
 
         for extraction in document.extractions:
-            yield extract_pb2.Extraction(
-                text=extraction.extraction_text,
-                type=extraction.extraction_class,
-                interval=extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
-            )
+            yield grpc_extraction(extraction)
+            # yield extract_pb2.Extraction(
+            #     text=extraction.extraction_text,
+            #     type=extraction.extraction_class,
+            #     interval=extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
+            # )

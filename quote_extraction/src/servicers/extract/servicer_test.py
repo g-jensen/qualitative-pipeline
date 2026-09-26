@@ -66,6 +66,17 @@ BURGERS_DOCUMENT = lx.data.AnnotatedDocument(
 )
 
 
+BURGERS_DOCUMENT_NO_INTERVAL = lx.data.AnnotatedDocument(
+    text="I like chicken. I like burgers.",
+    extractions=[
+        lx.data.Extraction(
+            extraction_text="I like burgers.",
+            extraction_class=PERSONAL_RULE
+        )
+    ]
+)
+
+
 BURGER_AND_CHICKEN_DOCUMENT = lx.data.AnnotatedDocument(
     text="I like chicken. I like burgers.",
     extractions=[
@@ -95,12 +106,16 @@ EXAMPLE_INTERNAL_THINKING = lx.data.AnnotatedDocument(
 )
 
 
-def grpc_extraction(extraction: lx.data.AnnotatedDocument):
+def grpc_extraction(extraction: lx.data.Extraction):
+    interval = None
+    if extraction.char_interval is not None:
+        interval = extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
+    
     return extract_pb2.Extraction(
         text=extraction.extraction_text,
         type=extraction.extraction_class,
-        interval=extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
-    ) 
+        interval=interval
+    )
 
 
 def prompt(topic: str):
@@ -153,6 +168,10 @@ def assert_api_key(extract_mock: MagicMock, api_key: str):
     assert len(extract_mock.call_args_list) == 1
     _, kwargs = extract_mock.call_args_list[0]
     assert kwargs["api_key"] == api_key
+
+
+def request_log_message(request: extract_pb2.ExtractionRequest):
+    return f'topic: "{request.topic}"\ndocument: "{request.document}"\nmodel: "{request.model}"\n'
 
 
 def test__extract__automatic_prompt_validation_off(mocker: MockerFixture, grpc_stub):
@@ -316,8 +335,13 @@ def test__extract__returns_multiple_extractions(mocker: MockerFixture, grpc_stub
     assert responses == [grpc_extraction(extraction_0), grpc_extraction(extraction_1)]
 
 
-def request_log_message(request: extract_pb2.ExtractionRequest):
-    return f'topic: "{request.topic}"\ndocument: "{request.document}"\nmodel: "{request.model}"\n'
+def test__extract__might_return_no_interval(mocker: MockerFixture, grpc_stub):
+    extract_mock = lx_extract_mock(mocker,BURGERS_DOCUMENT_NO_INTERVAL)
+
+    responses = list(grpc_stub.Call(request()))
+    
+    extraction = BURGERS_DOCUMENT_NO_INTERVAL.extractions[0]
+    assert responses == [grpc_extraction(extraction)]
 
 
 def test__extract__stub_fn_is_called():
