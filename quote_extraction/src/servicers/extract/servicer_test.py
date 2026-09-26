@@ -5,6 +5,8 @@ from _pytest.monkeypatch import MonkeyPatch
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 
+import json
+from pathlib import Path
 from protos import extract_pb2
 from protos import extract_pb2_grpc
 import grpc
@@ -118,6 +120,34 @@ def grpc_extraction(extraction: lx.data.Extraction):
     )
 
 
+def extraction_from_json(json_extraction):
+    return lx.data.Extraction(
+        extraction_class=json_extraction["extraction_class"],
+        extraction_text=json_extraction["extraction_text"]
+    )
+
+
+def extractions_from_json(json_extractions):
+    extractions = []
+
+    for json_extraction in json_extractions:
+        extractions.append(extraction_from_json(json_extraction))
+
+    return extractions
+
+
+def example_from_json(json_example):
+    return lx.data.ExampleData(
+        text=json_example["text"],
+        extractions=extractions_from_json(json_example["extractions"]),
+    )
+
+
+def load_examples():
+    json_examples = json.loads(Path("examples.json").read_text())
+    return list(map(example_from_json,json_examples))
+
+
 def prompt(topic: str):
     return f"""\
 You are given a transcript of an interview given by a cognitive researcher.
@@ -228,7 +258,7 @@ def test__extract__examples(mocker: MockerFixture, grpc_stub):
     _responses = list(grpc_stub.Call(request()))
 
     _, kwargs = extract_mock.call_args
-    assert kwargs["examples"] == [EXAMPLE_INTERNAL_THINKING]
+    assert kwargs["examples"] == load_examples()
 
 
 def test__extract__gemini_model(mocker: MockerFixture, grpc_stub):

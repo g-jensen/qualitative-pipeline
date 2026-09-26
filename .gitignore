@@ -6,7 +6,7 @@ coverage/
 .env
 .env.*
 .venv
-examples.json
+./examples.json
 .examples_cache
 extraction.jsonl
 output.xlsx
@@ -14,3 +14,7 @@ output.xlsx
 visualizations
 **/__pycache__/*
 grafana/provisioning/vendor
+
+template
+build
+.secrets

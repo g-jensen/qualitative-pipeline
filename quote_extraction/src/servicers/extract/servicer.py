@@ -12,6 +12,7 @@ from langextract.providers import router
 import langextract.providers.gemini
 import langextract.providers.openai
 from . import claude_provider
+from pathlib import Path
 
 from google.rpc import code_pb2
 from google.rpc import status_pb2
@@ -57,6 +58,34 @@ EXAMPLE_INTERNAL_THINKING = lx.data.AnnotatedDocument(
     ], 
     text="The chicken went great with the salad. I think salad goes well with hot foods."
 )
+
+
+def extraction_from_json(json_extraction):
+    return lx.data.Extraction(
+        extraction_class=json_extraction["extraction_class"],
+        extraction_text=json_extraction["extraction_text"]
+    )
+
+
+def extractions_from_json(json_extractions):
+    extractions = []
+
+    for json_extraction in json_extractions:
+        extractions.append(extraction_from_json(json_extraction))
+
+    return extractions
+
+
+def example_from_json(json_example):
+    return lx.data.ExampleData(
+        text=json_example["text"],
+        extractions=extractions_from_json(json_example["extractions"]),
+    )
+
+
+def load_examples():
+    json_examples = json.loads(Path("examples.json").read_text())
+    return list(map(example_from_json,json_examples))
 
 
 def is_valid_model(model: str):
@@ -118,13 +147,13 @@ def read_env():
     return env
 
 
-def extract_document(request: extract_pb2.ExtractionRequest, env: dict[str,str]) -> lx.data.AnnotatedDocument:
+def extract_document(request: extract_pb2.ExtractionRequest, env: dict[str,str], examples) -> lx.data.AnnotatedDocument:
     return lx.extract(
         config=lx.factory.ModelConfig(
             model_id=request.model, 
             provider_kwargs={"api_key": api_key_from_model(request.model, env)}
         ),
-        examples=[EXAMPLE_INTERNAL_THINKING],
+        examples=examples,
         prompt_validation_level=pv.PromptValidationLevel.OFF,
         prompt_description=prompt(request.topic),
         text_or_documents=request.document,
@@ -152,6 +181,8 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
         self.is_stubbing = False if stub_fn is None else True
         if self.is_stubbing:
             self.stub_fn = stub_fn
+
+        self.examples = load_examples() # not tested
     
     def Call(self, request: extract_pb2.ExtractionRequest, context: grpc.ServicerContext):
         if not is_valid_model(request.model):
@@ -161,12 +192,7 @@ class ExtractServicer(extract_pb2_grpc.ExtractServicer):
         if self.is_stubbing:
             document = self.stub_fn(request)
         else:
-            document = extract_document(request, self.env)
+            document = extract_document(request, self.env, self.examples)
 
         for extraction in document.extractions:
             yield grpc_extraction(extraction)
-            # yield extract_pb2.Extraction(
-            #     text=extraction.extraction_text,
-            #     type=extraction.extraction_class,
-            #     interval=extract_pb2.Interval(start=extraction.char_interval.start_pos,end=extraction.char_interval.end_pos)
-            # )
