@@ -1,4 +1,4 @@
-# quote-extraction
+# extract-quotes 
 
 Requires the `uv` Python package manager
 
