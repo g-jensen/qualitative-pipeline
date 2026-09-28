@@ -40,7 +40,7 @@ set -a && source ../.env && set +a && uv run serve
 uv run test
 ```
 
-### Component 'test'
+### E2E 'test'
 
 You'll need [grpcurl](https://github.com/fullstorydev/grpcurl) to run this command. First, run the server, then run:
 
@@ -49,6 +49,16 @@ grpcurl -plaintext -proto idl/protos/extract.proto -d '{"topic": "Burgers", "doc
 ```
 
 You should get an extracted quote like "But I have a general rule against eating peanuts."
+
+### Stubbed server
+
+If you run the server with `RUN_MODE=test`
+
+```bash
+RUN_MODE=test uv run serve
+```
+
+the extraction service always returns a pre-baked response (no LLM calls) for testing purposes.
 
 ### Adding a service
 
