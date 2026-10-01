@@ -113,7 +113,7 @@ func zipDetailMap(
 	outputMap := make(map[extract_test.TestDetailInputs]string)
 	for i, quote := range quotes {
 		input := extract_test.TestDetailInputs{Quote: quote, Verb: verbs[i], Keypoint: keypoints[i]}
-		outputMap[input] = keypoints[i]
+		outputMap[input] = details[i]
 	}
 	return outputMap
 }
