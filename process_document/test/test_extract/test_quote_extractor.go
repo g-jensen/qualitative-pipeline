@@ -1,4 +1,4 @@
-package extract_test
+package test_extract
 
 import (
 	"errors"
