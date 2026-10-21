@@ -8,11 +8,14 @@ import (
 
 type Handler struct {
 	QuoteExtractor extract.QuoteExtractor
+	QuoteProcessor QuoteProcessor
 }
 
-func NewHandler(quoteExtractor extract.QuoteExtractor) *Handler {
+// maybe just remove this... it's pretty useless.
+func (h *Handler) New(quoteExtractor extract.QuoteExtractor, quoteProcessor QuoteProcessor) *Handler {
 	return &Handler{
 		QuoteExtractor: quoteExtractor,
+		QuoteProcessor: quoteProcessor,
 	}
 }
 
