@@ -1,4 +1,4 @@
-package internal
+package process
 
 import (
 	"process_document/m/v2/internal/extract"

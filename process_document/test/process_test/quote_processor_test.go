@@ -1,7 +1,7 @@
 package test
 
 import (
-	sut "process_document/m/v2/internal"
+	sut "process_document/m/v2/internal/process"
 	"process_document/m/v2/internal/quote"
 	"process_document/m/v2/test/extract_test"
 	"testing"

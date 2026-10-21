@@ -4,15 +4,16 @@ import (
 	"io"
 	"net/http"
 	"process_document/m/v2/internal/extract"
+	"process_document/m/v2/internal/process"
 )
 
 type Handler struct {
 	QuoteExtractor extract.QuoteExtractor
-	QuoteProcessor QuoteProcessor
+	QuoteProcessor process.QuoteProcessor
 }
 
 // maybe just remove this... it's pretty useless.
-func (h *Handler) New(quoteExtractor extract.QuoteExtractor, quoteProcessor QuoteProcessor) *Handler {
+func (h *Handler) New(quoteExtractor extract.QuoteExtractor, quoteProcessor process.QuoteProcessor) *Handler {
 	return &Handler{
 		QuoteExtractor: quoteExtractor,
 		QuoteProcessor: quoteProcessor,
