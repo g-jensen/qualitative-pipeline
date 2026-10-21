@@ -14,10 +14,9 @@ type QuoteProcessor struct {
 }
 
 type ProcessedQuote struct {
-	OriginalQuote *quote.Quote
-	Verb          string
-	KeyPoint      string
-	Detail        string
+	Verb     string
+	KeyPoint string
+	Detail   string
 }
 
 func uppercaseFirst(s string) string {
