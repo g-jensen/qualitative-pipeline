@@ -9,10 +9,10 @@ type TestVerbExtractor struct {
 	ExtractionMap map[quote.Quote]string
 }
 
-func (extractor TestVerbExtractor) FromQuote(quote quote.Quote) (*string, error) {
+func (extractor TestVerbExtractor) FromQuote(quote quote.Quote) (string, error) {
 	output, exists := extractor.ExtractionMap[quote]
 	if exists {
-		return &output, nil
+		return output, nil
 	}
-	return nil, errors.New("Can't extract verb from quote")
+	return "", errors.New("Can't extract verb from quote")
 }

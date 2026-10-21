@@ -16,10 +16,10 @@ type TestKeypointExtractor struct {
 	Output        string
 }
 
-func (extractor TestKeypointExtractor) FromQuote(quote quote.Quote, verb string) (*string, error) {
+func (extractor TestKeypointExtractor) FromQuote(quote quote.Quote, verb string) (string, error) {
 	output, exists := extractor.ExtractionMap[TestKeypointInput{quote, verb}]
 	if exists {
-		return &output, nil
+		return output, nil
 	}
-	return nil, errors.New("Can't extract keypoint from quote")
+	return "", errors.New("Can't extract keypoint from quote")
 }

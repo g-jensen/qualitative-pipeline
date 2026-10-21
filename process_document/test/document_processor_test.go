@@ -9,10 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func ptr[T any](v T) *T {
-	return &v
-}
-
 func identity[T any](value T) T {
 	return value
 }
@@ -51,24 +47,24 @@ func zipMap[I comparable, O any](inputs []I, outputs []O) map[I]O {
 func _mockedDocumentProcessor(
 	testDocument string,
 	testQuote quote.Quote,
-	testVerb *string,
-	testKeypoint *string,
-	testDetail *string,
+	testVerb string,
+	testKeypoint string,
+	testDetail string,
 ) sut.DocumentProcessor {
 	quoteExtractionMap := map[string][]quote.Quote{
 		testDocument: {testQuote},
 	}
 
 	verbExtractionMap := map[quote.Quote]string{
-		testQuote: *testVerb,
+		testQuote: testVerb,
 	}
 
 	keypointExtractionMap := map[extract_test.TestKeypointInput]string{
-		{Quote: testQuote, Verb: *testVerb}: *testKeypoint,
+		{Quote: testQuote, Verb: testVerb}: testKeypoint,
 	}
 
 	detailExtractionMap := map[extract_test.TestDetailInputs]string{
-		{Quote: testQuote, Verb: *testVerb, Keypoint: *testKeypoint}: *testDetail,
+		{Quote: testQuote, Verb: testVerb, Keypoint: testKeypoint}: testDetail,
 	}
 	return sut.DocumentProcessor{
 		QuoteExtractor: extract_test.TestQuoteExtractor{
@@ -139,7 +135,7 @@ func TestProcess_SingleQuote(t *testing.T) {
 
 	processor := _mockedDocumentProcessor(
 		foodDocument, burgerQuote,
-		ptr("eats"), ptr("a burger"), ptr("in the morning"),
+		"eats", "a burger", "in the morning",
 	)
 
 	result := processor.Process(foodDocument)
@@ -148,7 +144,7 @@ func TestProcess_SingleQuote(t *testing.T) {
 		{
 			Verb:     "Eats",
 			KeyPoint: "a burger",
-			Detail:   ptr("in the morning"),
+			Detail:   "in the morning",
 		},
 	}
 	assert.Equal(t, expectedResult, result)
@@ -166,7 +162,7 @@ func TestProcess_Forcing_SingleQuote(t *testing.T) {
 				End:   35,
 			},
 		},
-		ptr("drinks"), ptr("a glass of water"), ptr("last night"),
+		"drinks", "a glass of water", "last night",
 	)
 
 	result := processor.Process(testDocument)
@@ -175,7 +171,7 @@ func TestProcess_Forcing_SingleQuote(t *testing.T) {
 		{
 			Verb:     "Drinks",
 			KeyPoint: "a glass of water",
-			Detail:   ptr("last night"),
+			Detail:   "last night",
 		},
 	}
 	assert.Equal(t, expectedResult, result)

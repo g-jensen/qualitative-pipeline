@@ -15,10 +15,10 @@ type TestDetailExtractor struct {
 	ExtractionMap map[TestDetailInputs]string
 }
 
-func (extractor TestDetailExtractor) FromQuote(quote quote.Quote, verb string, keypoint string) (*string, error) {
+func (extractor TestDetailExtractor) FromQuote(quote quote.Quote, verb string, keypoint string) (string, error) {
 	output, exists := extractor.ExtractionMap[TestDetailInputs{quote, verb, keypoint}]
 	if exists {
-		return &output, nil
+		return output, nil
 	}
-	return nil, errors.New("Can't extract detail from quote")
+	return "", errors.New("Can't extract detail from quote")
 }

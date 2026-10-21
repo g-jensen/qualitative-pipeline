@@ -16,7 +16,7 @@ type DocumentProcessor struct {
 type ProcessResult struct {
 	Verb     string
 	KeyPoint string
-	Detail   *string
+	Detail   string
 }
 
 func uppercaseFirst(s string) string {
@@ -32,13 +32,13 @@ func (processor DocumentProcessor) Process(document string) []ProcessResult {
 	quote := quotes[0]
 
 	verb, _ := processor.VerbExtractor.FromQuote(quote)
-	keypoint, _ := processor.KeypointExtractor.FromQuote(quote, *verb)
-	detail, _ := processor.DetailExtractor.FromQuote(quote, *verb, *keypoint)
+	keypoint, _ := processor.KeypointExtractor.FromQuote(quote, verb)
+	detail, _ := processor.DetailExtractor.FromQuote(quote, verb, keypoint)
 
 	return []ProcessResult{
 		{
-			Verb:     uppercaseFirst(*verb),
-			KeyPoint: *keypoint,
+			Verb:     uppercaseFirst(verb),
+			KeyPoint: keypoint,
 			Detail:   detail,
 		},
 	}
