@@ -27,18 +27,19 @@ func uppercaseFirst(s string) string {
 	return string(unicode.ToUpper(r)) + s[size:]
 }
 
-func (processor QuoteProcessor) ProcessBatch(quotes []quote.Quote) []ProcessedQuote {
-	quote := quotes[0]
+func (processor QuoteProcessor) Process(in <-chan quote.Quote, out chan<- ProcessedQuote) {
+	go func() {
+		defer close(out)
+		quote := <-in
 
-	verb, _ := processor.VerbExtractor.FromQuote(quote)
-	keypoint, _ := processor.KeypointExtractor.FromQuote(quote, verb)
-	detail, _ := processor.DetailExtractor.FromQuote(quote, verb, keypoint)
+		verb, _ := processor.VerbExtractor.FromQuote(quote)
+		keypoint, _ := processor.KeypointExtractor.FromQuote(quote, verb)
+		detail, _ := processor.DetailExtractor.FromQuote(quote, verb, keypoint)
 
-	return []ProcessedQuote{
-		{
+		out <- ProcessedQuote{
 			Verb:     uppercaseFirst(verb),
 			KeyPoint: keypoint,
 			Detail:   detail,
-		},
-	}
+		}
+	}()
 }

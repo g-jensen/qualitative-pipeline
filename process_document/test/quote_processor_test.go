@@ -129,14 +129,17 @@ func TestProcess_SingleQuote(t *testing.T) {
 		"eats", "a burger", "in the morning",
 	)
 
-	result := processor.ProcessBatch([]quote.Quote{burgerQuote})
+	in := make(chan quote.Quote)
+	out := make(chan sut.ProcessedQuote)
+	processor.Process(in, out)
+	in <- burgerQuote
+	close(in)
 
-	expectedResult := []sut.ProcessedQuote{
-		{
-			Verb:     "Eats",
-			KeyPoint: "a burger",
-			Detail:   "in the morning",
-		},
+	result := <-out
+	expectedResult := sut.ProcessedQuote{
+		Verb:     "Eats",
+		KeyPoint: "a burger",
+		Detail:   "in the morning",
 	}
 	assert.Equal(t, expectedResult, result)
 }
@@ -155,14 +158,17 @@ func TestProcess_Forcing_SingleQuote(t *testing.T) {
 		"drinks", "a glass of water", "last night",
 	)
 
-	result := processor.ProcessBatch([]quote.Quote{q})
+	in := make(chan quote.Quote)
+	out := make(chan sut.ProcessedQuote)
+	processor.Process(in, out)
+	in <- q
+	close(in)
 
-	expectedResult := []sut.ProcessedQuote{
-		{
-			Verb:     "Drinks",
-			KeyPoint: "a glass of water",
-			Detail:   "last night",
-		},
+	result := <-out
+	expectedResult := sut.ProcessedQuote{
+		Verb:     "Drinks",
+		KeyPoint: "a glass of water",
+		Detail:   "last night",
 	}
 	assert.Equal(t, expectedResult, result)
 }
