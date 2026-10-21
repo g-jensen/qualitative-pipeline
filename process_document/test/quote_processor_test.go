@@ -45,16 +45,11 @@ func zipMap[I comparable, O any](inputs []I, outputs []O) map[I]O {
 // }
 
 func _mockedDocumentProcessor(
-	testDocument string,
 	testQuote quote.Quote,
 	testVerb string,
 	testKeypoint string,
 	testDetail string,
-) sut.DocumentProcessor {
-	quoteExtractionMap := map[string][]quote.Quote{
-		testDocument: {testQuote},
-	}
-
+) sut.QuoteProcessor {
 	verbExtractionMap := map[quote.Quote]string{
 		testQuote: testVerb,
 	}
@@ -66,10 +61,7 @@ func _mockedDocumentProcessor(
 	detailExtractionMap := map[extract_test.TestDetailInputs]string{
 		{Quote: testQuote, Verb: testVerb, Keypoint: testKeypoint}: testDetail,
 	}
-	return sut.DocumentProcessor{
-		QuoteExtractor: extract_test.TestQuoteExtractor{
-			ExtractionMap: quoteExtractionMap,
-		},
+	return sut.QuoteProcessor{
 		VerbExtractor: extract_test.TestVerbExtractor{
 			ExtractionMap: verbExtractionMap,
 		},
@@ -115,7 +107,6 @@ func zipDetailMap(
 }
 
 func TestProcess_SingleQuote(t *testing.T) {
-	foodDocument := "I ate a salad last night. I ate a burger in the morning"
 	burgerQuote := quote.Quote{
 		Content: "I ate a burger in the morning",
 		Kind:    "inner thinking",
@@ -134,13 +125,13 @@ func TestProcess_SingleQuote(t *testing.T) {
 	// detailMap := zipDetailMap(foodQuotes, foodVerbs, foodKeypoints, foodDetails)
 
 	processor := _mockedDocumentProcessor(
-		foodDocument, burgerQuote,
+		burgerQuote,
 		"eats", "a burger", "in the morning",
 	)
 
-	result := processor.Process(foodDocument)
+	result := processor.ProcessBatch([]quote.Quote{burgerQuote})
 
-	expectedResult := []sut.ProcessResult{
+	expectedResult := []sut.ProcessedQuote{
 		{
 			Verb:     "Eats",
 			KeyPoint: "a burger",
@@ -151,23 +142,22 @@ func TestProcess_SingleQuote(t *testing.T) {
 }
 
 func TestProcess_Forcing_SingleQuote(t *testing.T) {
-	testDocument := "I drank a glass of water last night"
-	processor := _mockedDocumentProcessor(
-		testDocument,
-		quote.Quote{
-			Content: "I drank a glass of water last night",
-			Kind:    "inner thinking",
-			Interval: &quote.QuoteInterval{
-				Start: 0,
-				End:   35,
-			},
+	q := quote.Quote{
+		Content: "I drank a glass of water last night",
+		Kind:    "inner thinking",
+		Interval: &quote.QuoteInterval{
+			Start: 0,
+			End:   35,
 		},
+	}
+	processor := _mockedDocumentProcessor(
+		q,
 		"drinks", "a glass of water", "last night",
 	)
 
-	result := processor.Process(testDocument)
+	result := processor.ProcessBatch([]quote.Quote{q})
 
-	expectedResult := []sut.ProcessResult{
+	expectedResult := []sut.ProcessedQuote{
 		{
 			Verb:     "Drinks",
 			KeyPoint: "a glass of water",

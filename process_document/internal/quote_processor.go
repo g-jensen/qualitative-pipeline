@@ -2,21 +2,22 @@ package internal
 
 import (
 	"process_document/m/v2/internal/extract"
+	"process_document/m/v2/internal/quote"
 	"unicode"
 	"unicode/utf8"
 )
 
-type DocumentProcessor struct {
-	QuoteExtractor    extract.QuoteExtractor
+type QuoteProcessor struct {
 	VerbExtractor     extract.VerbExtractor
 	KeypointExtractor extract.KeypointExtractor
 	DetailExtractor   extract.DetailExtractor
 }
 
-type ProcessResult struct {
-	Verb     string
-	KeyPoint string
-	Detail   string
+type ProcessedQuote struct {
+	OriginalQuote *quote.Quote
+	Verb          string
+	KeyPoint      string
+	Detail        string
 }
 
 func uppercaseFirst(s string) string {
@@ -27,15 +28,14 @@ func uppercaseFirst(s string) string {
 	return string(unicode.ToUpper(r)) + s[size:]
 }
 
-func (processor DocumentProcessor) Process(document string) []ProcessResult {
-	quotes, _ := processor.QuoteExtractor.FromDocument(document)
+func (processor QuoteProcessor) ProcessBatch(quotes []quote.Quote) []ProcessedQuote {
 	quote := quotes[0]
 
 	verb, _ := processor.VerbExtractor.FromQuote(quote)
 	keypoint, _ := processor.KeypointExtractor.FromQuote(quote, verb)
 	detail, _ := processor.DetailExtractor.FromQuote(quote, verb, keypoint)
 
-	return []ProcessResult{
+	return []ProcessedQuote{
 		{
 			Verb:     uppercaseFirst(verb),
 			KeyPoint: keypoint,
